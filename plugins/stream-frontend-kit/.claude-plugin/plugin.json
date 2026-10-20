@@ -1,0 +1,16 @@
+{
+  "name": "stream-frontend-kit",
+  "version": "0.1.0",
+  "description": "Front-end workflow for Vue 3 screens: a screen-from-spec skill, the design language as a skill, a read-only screen reviewer, hooks that verify every edit and block secrets files, and the Playwright MCP.",
+  "author": {
+    "name": "Vanessa Aristizabal"
+  },
+  "license": "MIT",
+  "keywords": [
+    "vue",
+    "frontend",
+    "accessibility",
+    "design-system",
+    "review"
+  ]
+}

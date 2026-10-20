@@ -1,0 +1,16 @@
+{
+  "name": "stream-local",
+  "owner": {
+    "name": "Vanessa Aristizabal"
+  },
+  "metadata": {
+    "description": "Local marketplace for the Stream front-end kit."
+  },
+  "plugins": [
+    {
+      "name": "stream-frontend-kit",
+      "source": "./stream-frontend-kit",
+      "description": "Front-end workflow for Vue 3 screens: a screen-from-spec skill, the design language as a skill, a read-only screen reviewer, hooks that verify every edit and block secrets files, and the Playwright MCP."
+    }
+  ]
+}
