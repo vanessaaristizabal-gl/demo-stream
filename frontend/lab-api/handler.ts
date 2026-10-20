@@ -239,7 +239,10 @@ export function createLabApi(options: { now?: () => number } = {}) {
     const flaky = new Map<number, 'rate_limited' | 'provider_rejected'>()
     items
       .filter((c) => c.status === 'ready')
-      .forEach((c, i) => ((i === 1 && flaky.set(c.id, 'rate_limited')) || i === 3 ? flaky.set(c.id, 'provider_rejected') : undefined))
+      .forEach((c, i) => {
+        if (i === 1) flaky.set(c.id, 'rate_limited')
+        if (i === 3) flaky.set(c.id, 'provider_rejected')
+      })
     const label = input.oem === 'stellantis' ? 'Stellantis rulebook' : 'no OEM rulebook'
     batches.set(batchId, {
       items,

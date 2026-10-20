@@ -144,3 +144,56 @@ describe('lab control', () => {
     expect(call('GET', '/nope').status).toBe(404)
   })
 })
+
+describe('playbook deploy', () => {
+  const settings = { monthly_cap: 165000, pacing: 'even', status_at_write: 'paused' }
+  const preview = (body: unknown) => call('POST', '/deploy/preview', body)
+
+  it('offers the OEM rulebooks and accounts, some without a Salesforce budget', () => {
+    const options = data<{ oems: { id: string; rules: number | null }[]; accounts: { budget_group: string }[] }>(
+      call('GET', '/deploy/options'),
+    )
+    expect(options.oems.find((o) => o.id === 'stellantis')?.rules).toBe(35)
+    expect(options.accounts.some((a) => a.budget_group === 'none')).toBe(true)
+  })
+
+  it('holds accounts with the reason instead of dropping them: no budget, over the envelope, wrong OEM', () => {
+    const result = data<LabPreview>(preview({ oem: 'stellantis', account_ids: [1, 4, 8, 10], settings }))
+    expect(result.total).toBe(4)
+    const byId = Object.fromEntries(result.items.map((i) => [i.id, i]))
+    expect(byId[1].status).toBe('ready')
+    expect(byId[4].hold_reason).toMatch(/No active Salesforce budget/)
+    expect(byId[8].hold_reason).toMatch(/above the Salesforce-approved envelope of \$1,200\.00/)
+    expect(byId[10].hold_reason).toMatch(/Stellantis rulebook/)
+    expect(result.ready + result.held).toBe(4)
+  })
+
+  it('does not apply the OEM rulebook when No OEM is chosen', () => {
+    const result = data<LabPreview>(preview({ oem: 'none', account_ids: [10], settings }))
+    expect(result.items[0].status).toBe('ready')
+  })
+
+  it('validates the request', () => {
+    expect(preview({ oem: 'stellantis', account_ids: [], settings }).status).toBe(422)
+    expect(preview({ oem: 'nope', account_ids: [1], settings }).status).toBe(422)
+    expect(preview({ oem: 'stellantis', account_ids: [1], settings: { ...settings, monthly_cap: 5000 } }).status).toBe(422)
+  })
+
+  it('writes nothing on preview, and approving leaves receipts and retryable partial failures', () => {
+    const batch = data<LabPreview>(preview({ oem: 'stellantis', account_ids: [1, 2, 3, 5, 6, 9], settings }))
+    expect(data<unknown[]>(call('GET', `/deploy/receipts?batch_id=${batch.batch_id}`))).toEqual([])
+
+    const first = data<LabApplyResult>(call('POST', '/bulk/apply', { batch_id: batch.batch_id }, 'd1'))
+    expect(first.failed.map((f) => f.code).sort()).toEqual(['provider_rejected', 'rate_limited'])
+    const held = batch.items.filter((i) => i.status === 'held').length
+    expect(first.applied.length + first.failed.length + held).toBe(6)
+
+    const retry = data<LabApplyResult>(
+      call('POST', '/bulk/apply', { batch_id: batch.batch_id, item_ids: first.failed.map((f) => f.id) }, 'd2'),
+    )
+    expect(retry.failed).toEqual([])
+    const receipts = data<{ steps: string[]; actor: string }[]>(call('GET', `/deploy/receipts?batch_id=${batch.batch_id}`))
+    expect(receipts).toHaveLength(batch.ready)
+    expect(receipts[0]).toMatchObject({ actor: 'Demo strategist', steps: ['validated', 'compliance', 'dry-run', 'write'] })
+  })
+})

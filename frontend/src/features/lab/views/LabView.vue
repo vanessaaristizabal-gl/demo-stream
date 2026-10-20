@@ -4,6 +4,11 @@ import { DsCard, DsMessage } from '@/design-system'
 
 const SCREENS = [
   {
+    name: 'lab-deploy',
+    title: 'Deploy a playbook',
+    text: 'Pick an OEM rulebook and accounts, set the budget, review a preview that writes nothing, approve once and read the changelog receipts.',
+  },
+  {
     name: 'lab-bulk',
     title: 'Bulk approval preview',
     text: 'Preview 300 budget changes, see what is held and why, approve once, then retry the items that failed.',

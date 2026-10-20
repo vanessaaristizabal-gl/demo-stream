@@ -21,6 +21,12 @@ const labRoutes: RouteRecordRaw[] = [
     meta: { crumb: 'Bulk approval', parent: 'lab' },
   },
   {
+    path: '/lab/deploy',
+    name: 'lab-deploy',
+    component: () => import('@/features/lab/views/DeployWizardView.vue'),
+    meta: { crumb: 'Deploy a playbook', parent: 'lab' },
+  },
+  {
     path: '/lab/template',
     name: 'lab-template',
     component: () => import('@/features/lab/views/TemplateFieldView.vue'),

@@ -68,6 +68,52 @@ test.describe('bulk approval preview', () => {
   })
 })
 
+test.describe('playbook deploy wizard', () => {
+  test('walks the three steps, holds what cannot deploy, approves once, retries failures and shows receipts', async ({ page }) => {
+    await page.goto('/lab/deploy')
+    await expect(page.getByRole('heading', { name: 'Deploy a playbook' })).toBeVisible()
+    await expect(page.getByText('35 rules encoded')).toBeVisible()
+
+    await page.getByLabel('Select all accounts').check()
+    await expect(page.getByText('10 of 10 accounts selected')).toBeVisible()
+    await page.getByRole('button', { name: 'Continue to settings' }).click()
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeFocused()
+
+    await page.getByLabel('Monthly budget cap (USD)').fill('50')
+    await expect(page.getByRole('alert')).toContainText('at least $100.00')
+    await expect(page.getByRole('button', { name: 'Build the preview' })).toBeDisabled()
+    await page.getByLabel('Monthly budget cap (USD)').fill('1650')
+    await page.getByRole('button', { name: 'Build the preview' }).click()
+
+    await expect(page.getByText('Preview only: nothing is written until you approve.')).toBeVisible()
+    const held = page.getByRole('table', { name: 'Held items and the reason for each' })
+    await expect(held).toContainText('No active Salesforce budget')
+    await expect(held).toContainText('above the Salesforce-approved envelope')
+    await expect(held).toContainText('Blocked by the Stellantis rulebook')
+
+    await page.getByRole('button', { name: /^Approve/ }).click()
+    const result = page.getByRole('region', { name: 'Result' })
+    await expect(result).toContainText('2 failed')
+    await page.getByRole('button', { name: 'Retry failed' }).click()
+    await expect(result).toContainText('changes were applied.')
+    const receipts = page.getByRole('table', { name: 'Receipts for this deploy' })
+    await expect(receipts).toContainText('validated > compliance > dry-run > write')
+    await expect(receipts).toContainText('Demo strategist')
+  })
+
+  test('the wizard works with the keyboard and keeps the selection when going back', async ({ page }) => {
+    await page.goto('/lab/deploy')
+    await page.getByLabel('Select Schrute CDJR').focus()
+    await page.keyboard.press('Space')
+    await page.getByRole('button', { name: 'Continue to settings' }).focus()
+    await page.keyboard.press('Enter')
+    await expect(page.getByRole('heading', { name: 'Settings' })).toBeFocused()
+    await page.getByRole('button', { name: 'Previous step' }).focus()
+    await page.keyboard.press('Enter')
+    await expect(page.getByLabel('Select Schrute CDJR')).toBeChecked()
+  })
+})
+
 test.describe('template field', () => {
   test('counts the filled-in text, flags overflow per dealer and unknown placeholders', async ({ page }) => {
     await page.goto('/lab/template')
@@ -151,6 +197,7 @@ for (const scheme of ['light', 'dark'] as const) {
     })
     for (const [name, path, ready] of [
       ['lab hub', '/lab', 'Practice area'],
+      ['deploy wizard', '/lab/deploy', '0 of 10 accounts selected'],
       ['bulk approval', '/lab/bulk', 'Approve 285 changes'],
       ['template field', '/lab/template', 'Preview'],
       ['dense list', '/lab/rows', '2,000 campaigns'],
@@ -173,7 +220,7 @@ for (const scheme of ['light', 'dark'] as const) {
 
 test('the lab screens do not scroll the page sideways at 320 px', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 700 })
-  for (const path of ['/lab', '/lab/bulk', '/lab/template', '/lab/rows']) {
+  for (const path of ['/lab', '/lab/deploy', '/lab/bulk', '/lab/template', '/lab/rows']) {
     await page.goto(path)
     await page.waitForLoadState('networkidle')
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)

@@ -2,6 +2,8 @@ import type {
   Campaign,
   ChangeRequest,
   LabChange,
+  LabDeployOptions,
+  LabReceipt,
   LabPreview,
   LabRow,
   LabRowsQuery,
@@ -204,3 +206,29 @@ export function makeLabRow(id: number, overrides: Partial<LabRow> = {}): LabRow 
 }
 
 export const labQuery: LabRowsQuery = { page: 1, per_page: 50, status: '', q: '', sort: '', dir: 'asc' }
+
+export function makeDeployOptions(): LabDeployOptions {
+  return {
+    campaign_type: { id: 'core-models-search', label: 'Core Models Search' },
+    oems: [
+      { id: 'stellantis', label: 'Stellantis', rules: 35, source: 'Shift Digital Integration Spec v2.4' },
+      { id: 'none', label: 'No OEM', rules: null, source: null },
+    ],
+    accounts: [
+      { id: 1, name: 'Schrute CDJR', oem: 'stellantis', budget_group: 'active', envelope: 250000 },
+      { id: 2, name: 'Anderson CDJR', oem: 'stellantis', budget_group: 'none', envelope: 0 },
+      { id: 3, name: 'Lakeside Toyota', oem: 'toyota', budget_group: 'active', envelope: 250000 },
+    ],
+  }
+}
+
+export const makeReceipt = (id: number, overrides: Partial<LabReceipt> = {}): LabReceipt => ({
+  id,
+  batch_id: 'deploy-1',
+  account: 'Schrute CDJR',
+  actor: 'Demo strategist',
+  summary: 'Deployed Core Models Search (Stellantis rulebook)',
+  steps: ['validated', 'compliance', 'dry-run', 'write'],
+  at: '2026-10-20T15:30:00Z',
+  ...overrides,
+})
