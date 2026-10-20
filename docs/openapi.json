@@ -2369,6 +2369,115 @@
                         "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
+            },
+            "patch": {
+                "operationId": "sandbox.update",
+                "description": "Send only the fields to change (name, goal, status `active` or `paused`, daily budget in cents, vehicle, location, landing URL). The platform structure is rebuilt from the result; the external id and the metrics history are kept. Requires an `Idempotency-Key` header; repeating the same change is safe. A sandbox campaign is not subject to approval and never reaches a real account.",
+                "summary": "Edit a simulated campaign",
+                "tags": [
+                    "Demo sandbox"
+                ],
+                "parameters": [
+                    {
+                        "name": "sandboxCampaign",
+                        "in": "path",
+                        "required": true,
+                        "description": "The sandbox campaign ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateSandboxCampaignRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "`SandboxCampaignDetailResource`",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/SandboxCampaignDetailResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "sandbox.destroy",
+                "description": "Removes the campaign and its metrics. Requires an `Idempotency-Key` header. Live campaigns cannot be deleted here: they change only through the governed write path.",
+                "summary": "Delete a simulated campaign",
+                "tags": [
+                    "Demo sandbox"
+                ],
+                "parameters": [
+                    {
+                        "name": "sandboxCampaign",
+                        "in": "path",
+                        "required": true,
+                        "description": "The sandbox campaign ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                "Idempotency-Key header is required."
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
             }
         },
         "/campaigns/{campaign}/changes": {
@@ -3335,6 +3444,10 @@
                             "cpm"
                         ]
                     },
+                    "inputs": {
+                        "type": "object",
+                        "additionalProperties": {}
+                    },
                     "structure": {
                         "type": "object",
                         "additionalProperties": {}
@@ -3356,6 +3469,7 @@
                     "daily_budget",
                     "created_at",
                     "totals",
+                    "inputs",
                     "structure",
                     "daily_metrics"
                 ],
@@ -3594,6 +3708,45 @@
                     "changes"
                 ],
                 "title": "SubmitChangeRequest"
+            },
+            "UpdateSandboxCampaignRequest": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 120
+                    },
+                    "goal": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "active",
+                            "paused"
+                        ]
+                    },
+                    "daily_budget": {
+                        "type": "integer",
+                        "minimum": 100,
+                        "maximum": 1000000
+                    },
+                    "vehicle": {
+                        "type": "string",
+                        "description": "cents: $1 to $10,000",
+                        "maxLength": 60
+                    },
+                    "location": {
+                        "type": "string",
+                        "maxLength": 80
+                    },
+                    "landing_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "maxLength": 255
+                    }
+                },
+                "title": "UpdateSandboxCampaignRequest"
             },
             "UserRole": {
                 "type": "string",

@@ -62,6 +62,34 @@ class SandboxCampaignService
         }
     }
 
+    /**
+     * Changes the fields it is given and rebuilds the platform structure from the merged inputs, keeping the external id
+     * and the metrics (the history does not change because a setting did). Setting the same values again changes nothing.
+     *
+     * @param  array<string, mixed>  $changes
+     */
+    public function update(SandboxCampaign $campaign, array $changes): SandboxCampaign
+    {
+        $inputs = array_merge($campaign->inputs, array_intersect_key($changes, array_flip(['name', 'goal', 'daily_budget', 'vehicle', 'location', 'landing_url'])));
+
+        $campaign->forceFill([
+            'name' => $inputs['name'],
+            'goal' => $inputs['goal'],
+            'daily_budget' => $inputs['daily_budget'],
+            'status' => $changes['status'] ?? $campaign->status,
+            'inputs' => $inputs,
+            'structure' => $this->structures->build($campaign->platform, $campaign->external_id, $inputs, $campaign->created_at->copy()),
+        ])->save();
+
+        return $campaign;
+    }
+
+    /** Removes the simulated campaign and its metrics. It never touches a provider. */
+    public function delete(SandboxCampaign $campaign): void
+    {
+        $campaign->delete(); // metrics go with it (cascade)
+    }
+
     private function existing(string $key, string $fingerprint): ?SandboxCampaign
     {
         $found = SandboxCampaign::query()->where('idempotency_key', $key)->first();

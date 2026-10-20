@@ -29,6 +29,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('sandbox/campaigns', [SandboxController::class, 'index']);
     Route::post('sandbox/campaigns', [SandboxController::class, 'store']);
     Route::get('sandbox/campaigns/{sandboxCampaign}', [SandboxController::class, 'show']);
+    Route::patch('sandbox/campaigns/{sandboxCampaign}', [SandboxController::class, 'update']);
+    Route::delete('sandbox/campaigns/{sandboxCampaign}', [SandboxController::class, 'destroy']);
 
     Route::get('changelog', [ChangelogController::class, 'index']);
     Route::get('emergency-stop', [AdminController::class, 'emergencyStop']);

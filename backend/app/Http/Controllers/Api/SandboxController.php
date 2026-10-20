@@ -7,10 +7,13 @@ use App\Domain\Sandbox\Services\PlatformCatalog;
 use App\Domain\Sandbox\Services\SandboxCampaignService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreSandboxCampaignRequest;
+use App\Http\Requests\UpdateSandboxCampaignRequest;
 use App\Http\Resources\SandboxCampaignDetailResource;
 use App\Http\Resources\SandboxCampaignResource;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 #[Group('Demo sandbox')]
 class SandboxController extends Controller
@@ -63,5 +66,30 @@ class SandboxController extends Controller
     public function show(SandboxCampaign $sandboxCampaign): JsonResponse
     {
         return (new SandboxCampaignDetailResource($sandboxCampaign->load('metrics')))->response();
+    }
+
+    /**
+     * Edit a simulated campaign
+     *
+     * Send only the fields to change (name, goal, status `active` or `paused`, daily budget in cents, vehicle, location, landing URL). The platform structure is rebuilt from the result; the external id and the metrics history are kept. Requires an `Idempotency-Key` header; repeating the same change is safe. A sandbox campaign is not subject to approval and never reaches a real account.
+     */
+    public function update(UpdateSandboxCampaignRequest $request, SandboxCampaign $sandboxCampaign): JsonResponse
+    {
+        $request->idempotencyKey();
+
+        return (new SandboxCampaignDetailResource($this->campaigns->update($sandboxCampaign, $request->validated())->load('metrics')))->response();
+    }
+
+    /**
+     * Delete a simulated campaign
+     *
+     * Removes the campaign and its metrics. Requires an `Idempotency-Key` header. Live campaigns cannot be deleted here: they change only through the governed write path.
+     */
+    public function destroy(Request $request, SandboxCampaign $sandboxCampaign): Response
+    {
+        abort_if(blank($request->header('Idempotency-Key')), 422, 'Idempotency-Key header is required.');
+        $this->campaigns->delete($sandboxCampaign);
+
+        return response()->noContent();
     }
 }

@@ -14,6 +14,7 @@ class SandboxCampaignDetailResource extends SandboxCampaignResource
     {
         return [
             ...parent::toArray($request),
+            'inputs' => $this->inputs,
             'structure' => $this->structure,
             'daily_metrics' => $this->metrics->map(fn (SandboxMetric $m) => [
                 'date' => $m->date->toDateString(),

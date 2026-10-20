@@ -8,6 +8,7 @@ use App\Domain\Sandbox\Services\MetricsSimulator;
 use App\Domain\Sandbox\Services\PlatformCatalog;
 use App\Domain\Sandbox\Services\StructureBuilder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
 
 use function Tests\fakeProvider;
@@ -153,4 +154,49 @@ it('keeps Google headlines within the 30-character limit', function () {
 it('offers different goals per platform', function () {
     expect(array_keys(PlatformCatalog::goals(Platform::Google)))->not->toContain('awareness')
         ->and(array_keys(PlatformCatalog::goals(Platform::Meta)))->toContain('awareness');
+});
+
+it('edits a simulated campaign, rebuilds its structure and keeps its id and metrics', function () {
+    Sanctum::actingAs(user());
+    $created = $this->postJson('/api/sandbox/campaigns', sandboxPayload(), ['Idempotency-Key' => 'e1'])->assertCreated()->json('data');
+
+    $edited = $this->patchJson("/api/sandbox/campaigns/{$created['id']}", ['name' => 'Spring Camry v2', 'daily_budget' => 20000, 'status' => 'paused', 'vehicle' => 'RAV4'], ['Idempotency-Key' => 'e2'])
+        ->assertOk()->json('data');
+
+    expect($edited['name'])->toBe('Spring Camry v2')
+        ->and($edited['daily_budget'])->toBe(20000)
+        ->and($edited['status'])->toBe('paused')
+        ->and($edited['external_id'])->toBe($created['external_id'])
+        ->and($edited['inputs']['vehicle'])->toBe('RAV4')
+        ->and($edited['inputs']['location'])->toBe('Austin')
+        ->and($edited['structure']['campaign']['campaign_budget']['amount_micros'])->toBe(200_000_000)
+        ->and($edited['daily_metrics'])->toEqual($created['daily_metrics']);
+});
+
+it('validates an edit: the goal must exist for the platform, the budget in range, the status known', function () {
+    Sanctum::actingAs(user());
+    $id = $this->postJson('/api/sandbox/campaigns', sandboxPayload(), ['Idempotency-Key' => 'v1'])->json('data.id');
+
+    $this->patchJson("/api/sandbox/campaigns/{$id}", ['goal' => 'awareness'], ['Idempotency-Key' => 'v2'])->assertUnprocessable(); // Meta only
+    $this->patchJson("/api/sandbox/campaigns/{$id}", ['daily_budget' => 50], ['Idempotency-Key' => 'v3'])->assertUnprocessable();
+    $this->patchJson("/api/sandbox/campaigns/{$id}", ['status' => 'removed'], ['Idempotency-Key' => 'v4'])->assertUnprocessable();
+    $this->patchJson("/api/sandbox/campaigns/{$id}", ['name' => 'No key'])->assertUnprocessable(); // Idempotency-Key is required
+});
+
+it('deletes a simulated campaign and its metrics, and answers 404 afterwards', function () {
+    Sanctum::actingAs(user());
+    $id = $this->postJson('/api/sandbox/campaigns', sandboxPayload(), ['Idempotency-Key' => 'd1'])->json('data.id');
+
+    $this->deleteJson("/api/sandbox/campaigns/{$id}")->assertUnprocessable(); // Idempotency-Key is required
+    $this->deleteJson("/api/sandbox/campaigns/{$id}", [], ['Idempotency-Key' => 'd2'])->assertNoContent();
+
+    expect(SandboxCampaign::query()->count())->toBe(0)
+        ->and(DB::table('sandbox_metrics')->count())->toBe(0);
+    $this->getJson("/api/sandbox/campaigns/{$id}")->assertNotFound();
+    $this->deleteJson("/api/sandbox/campaigns/{$id}", [], ['Idempotency-Key' => 'd3'])->assertNotFound();
+});
+
+it('requires authentication to edit or delete', function () {
+    $this->patchJson('/api/sandbox/campaigns/1', ['name' => 'x'])->assertUnauthorized();
+    $this->deleteJson('/api/sandbox/campaigns/1')->assertUnauthorized();
 });
