@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import type { LabApplyFailure } from '@/shared/api/types'
 import { expectNoA11yViolations } from '@/shared/test/axe'
 import { makeLabPreview } from '@/shared/test/factories'
@@ -14,6 +14,14 @@ const base = { status: 'ready' as const, preview: makeLabPreview(), appliedCount
 const render = (props: Record<string, unknown> = {}) =>
   mount(BulkApprovalPreview, { props: { ...base, ...props }, attachTo: document.body })
 const button = (w: ReturnType<typeof render>, name: RegExp) => w.findAll('button').find((b) => name.test(b.text()))
+/** The lists live in tabs: open one the way a person does. */
+const openTab = async (w: ReturnType<typeof render>, name: RegExp) => {
+  await w
+    .findAll('[role="tab"]')
+    .find((t) => name.test(t.text()))!
+    .trigger('mousedown', { button: 0 })
+  await flushPromises()
+}
 /** A table is found by its caption, the way a screen-reader user finds it. */
 const table = (w: ReturnType<typeof render>, caption: string) => w.findAll('table').find((t) => t.get('caption').text() === caption)
 
@@ -33,12 +41,14 @@ describe('BulkApprovalPreview', () => {
     expect(row.text()).toContain('$55.00')
   })
 
-  it('AC-3: held items are listed with their reason and are not counted as ready', () => {
+  it('AC-3: held items are listed with their reason and are not counted as ready', async () => {
     const w = render()
+    expect(w.findAll('[role="tab"]').map((t) => t.text())).toEqual(['Changes to apply 30', 'Held 3'])
+    expect(table(w, 'Budget changes ready to apply')!.text()).not.toContain('Held dealer')
+    await openTab(w, /^Held/)
     const held = table(w, 'Held items and the reason for each')!
     expect(held.findAll('tbody tr')).toHaveLength(3)
     expect(held.text()).toContain('Locked by manufacturer rule')
-    expect(table(w, 'Budget changes ready to apply')!.text()).not.toContain('Held dealer')
     expect(button(w, /Approve/)!.text()).toBe('Approve 30 changes')
   })
 
@@ -118,7 +128,8 @@ describe('BulkApprovalPreview', () => {
 
   it('AC-14: when every item is held, the held list shows and Approve is disabled', () => {
     const w = render({ preview: makeLabPreview({ ready: 0, held: 4 }) })
-    expect(w.text()).toContain('Held items (4)')
+    expect(w.get('[role="tab"][aria-selected="true"]').text()).toBe('Held 4')
+    expect(table(w, 'Held items and the reason for each')!.findAll('tbody tr')).toHaveLength(4)
     expect(button(w, /Approve/)!.attributes('disabled')).toBeDefined()
   })
 
@@ -142,14 +153,31 @@ describe('BulkApprovalPreview', () => {
     expect(document.activeElement?.textContent).toContain('Too many requests')
   })
 
-  it('AC-15: server text is rendered as plain text, never as HTML', () => {
+  it('AC-19: the lists are two tabs with counts, opening on the changes or, when nothing is ready, on the held items', () => {
+    const w = render()
+    expect(w.findAll('[role="tab"]').map((t) => [t.text(), t.attributes('aria-selected')])).toEqual([
+      ['Changes to apply 30', 'true'],
+      ['Held 3', 'false'],
+    ])
+    expect(w.findAll('[role="tabpanel"]:not([hidden])')).toHaveLength(1)
+    expect(
+      render({ preview: makeLabPreview({ ready: 0, held: 2 }) })
+        .get('[role="tab"][aria-selected="true"]')
+        .text(),
+    ).toBe('Held 2')
+  })
+
+  it('AC-15: server text is rendered as plain text, never as HTML', async () => {
     const preview = makeLabPreview({ ready: 1, held: 1 })
     preview.items[0].account = '<img src=x onerror=alert(1)>'
     preview.items[1].hold_reason = '<b>bold</b>'
     const w = render({ preview })
+    await openTab(w, /^Held/)
     expect(w.find('img').exists()).toBe(false)
     expect(w.find('b').exists()).toBe(false)
-    expect(w.text()).toContain('<img src=x onerror=alert(1)>')
     expect(w.text()).toContain('<b>bold</b>')
+    await openTab(w, /^Changes/)
+    expect(w.text()).toContain('<img src=x onerror=alert(1)>')
+    expect(w.find('img').exists()).toBe(false)
   })
 })

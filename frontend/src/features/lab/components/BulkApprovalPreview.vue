@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, useId, watch } from 'vue'
 import { ClipboardList, RotateCw } from 'lucide-vue-next'
-import { DsButton, DsCard, DsEmptyState, DsMessage, DsPagination, DsTable, DsTag, useTable, type DsColumn } from '@/design-system'
+import { DsButton, DsCard, DsEmptyState, DsMessage, DsPagination, DsTable, DsTabs, DsTag, useTable, type DsColumn } from '@/design-system'
 import type { LabApplyFailure, LabChange, LabPreview } from '@/shared/api/types'
 import { formatMoney, formatNumber } from '@/shared/utils/format'
 
@@ -48,6 +48,17 @@ const allApplied = computed(() => hasResult.value && props.failures.length === 0
 // Items the server neither applied nor reported as failed: they must never vanish silently.
 const unresolved = computed(() => Math.max(0, (props.preview?.ready ?? 0) - props.appliedCount - props.failures.length))
 const rateLimitedCount = computed(() => props.failures.filter((f) => f.code === 'rate_limited').length)
+
+const listTabs = computed(() => [
+  { value: 'ready', label: 'Changes to apply', count: readyItems.value.length },
+  { value: 'held', label: 'Held', count: heldItems.value.length },
+])
+// Open on what there is to review: the changes, or, when everything is held, the reasons.
+const listTab = ref<string>(props.preview && props.preview.ready === 0 ? 'held' : 'ready')
+watch(
+  () => props.preview?.batch_id,
+  () => (listTab.value = props.preview && props.preview.ready === 0 ? 'held' : 'ready'),
+)
 
 const { sort, page, pageCount, pageRows } = useTable(readyItems, { pageSize: 25 })
 
@@ -132,23 +143,27 @@ watch(
       </template>
     </section>
 
-    <section v-if="heldItems.length > 0" aria-labelledby="held-title">
-      <h2 id="held-title" class="section-title">Held items ({{ formatNumber(heldItems.length) }})</h2>
-      <DsCard :padded="false">
-        <DsTable :columns="HELD_COLUMNS" :rows="heldItems" row-key="id" caption="Held items and the reason for each" />
-      </DsCard>
-    </section>
-
-    <section v-if="readyItems.length > 0" aria-labelledby="ready-title">
-      <h2 id="ready-title" class="section-title">Changes to apply ({{ formatNumber(readyItems.length) }})</h2>
-      <DsCard :padded="false">
-        <DsTable v-model:sort="sort" :columns="READY_COLUMNS" :rows="pageRows" row-key="id" caption="Budget changes ready to apply">
-          <template #cell-before="{ row }">{{ formatMoney(row.before) }}</template>
-          <template #cell-after="{ row }">{{ formatMoney(row.after) }}</template>
-        </DsTable>
-      </DsCard>
-      <DsPagination v-model:page="page" :page-count="pageCount" />
-    </section>
+    <!-- Two lists, two tabs: the person is either checking what will be written or why something was held. -->
+    <DsTabs v-if="items.length > 0" v-model="listTab" label="Items in this batch" :items="listTabs">
+      <template #panel-ready>
+        <p v-if="readyItems.length === 0" class="ds-muted">Nothing is ready to apply.</p>
+        <template v-else>
+          <DsCard :padded="false">
+            <DsTable v-model:sort="sort" :columns="READY_COLUMNS" :rows="pageRows" row-key="id" caption="Budget changes ready to apply">
+              <template #cell-before="{ row }">{{ formatMoney(row.before) }}</template>
+              <template #cell-after="{ row }">{{ formatMoney(row.after) }}</template>
+            </DsTable>
+          </DsCard>
+          <DsPagination v-model:page="page" :page-count="pageCount" />
+        </template>
+      </template>
+      <template #panel-held>
+        <p v-if="heldItems.length === 0" class="ds-muted">Nothing is held.</p>
+        <DsCard v-else :padded="false">
+          <DsTable :columns="HELD_COLUMNS" :rows="heldItems" row-key="id" caption="Held items and the reason for each" />
+        </DsCard>
+      </template>
+    </DsTabs>
   </div>
 </template>
 

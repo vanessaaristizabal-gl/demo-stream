@@ -1,9 +1,11 @@
 # Spec: Bulk approval preview
+
 Component: features/lab/components/BulkApprovalPreview
 
 A strategist raises the daily budget of 300 campaigns by 10%. The screen shows what will change, what is held and why, takes one approval, then reports what the provider actually did: some items succeed, some fail, and the failures can be retried.
 
 ## States
+
 - loading
 - error
 - empty
@@ -13,6 +15,7 @@ A strategist raises the daily budget of 300 campaigns by 10%. The screen shows w
 - success
 
 ## Acceptance criteria
+
 - AC-1: The summary shows the total number of items, how many are ready and how many are held.
 - AC-2: Every ready item shows its account, the budget before and the budget after, formatted as money.
 - AC-3: Every held item is listed with its reason, and held items are not counted in what will be applied.
@@ -27,6 +30,7 @@ A strategist raises the daily budget of 300 campaigns by 10%. The screen shows w
 - AC-12: Every control is reachable and operable with the keyboard, and the result summary receives focus when applying finishes.
 
 ## Edge cases
+
 - AC-13: If the apply request itself fails (for example HTTP 429), the screen shows that message and "Approve" stays available.
 - AC-14: A preview in which every item is held shows the held list and disables "Approve".
 - AC-15: Server text (reasons, account names) is rendered as plain text, never as HTML.
@@ -35,5 +39,8 @@ A strategist raises the daily budget of 300 campaigns by 10%. The screen shows w
 - AC-17: If the server reports fewer items than were ready (neither applied nor failed), the result says how many are unaccounted for and never shows plain success.
 - AC-18: If the apply request itself fails, focus moves to the error message instead of being lost.
 
+- AC-19: The lists are organised in two tabs with counts, Changes to apply and Held; it opens on Changes to apply, or on Held when nothing is ready.
+
 ## Out of scope
+
 Selecting a subset of items, editing the new values, undo, scheduling, and approving across several users.
