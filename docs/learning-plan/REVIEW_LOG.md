@@ -1,0 +1,23 @@
+# Review log
+
+What was rejected or corrected in generated artifacts, and why. Add a row every time. (Week 1 = Oct 19 to 23, Week 2 = Oct 26 to 30, Week 3 = Nov 2 to 6.)
+
+| Date | Artifact | What was wrong | What you did |
+|---|---|---|---|
+| 2026-10-20 | `/lab/bulk` layout (found by the 320 px e2e test) | The page scrolled sideways 424 px at 320 px: a grid track in `.ds-stack` is min-content wide, so a wide table pushed the page (WCAG 1.4.10) | Fixed in `design-system/base.css` (`minmax(0, 1fr)`); the e2e test stays |
+| 2026-10-20 | `BulkApprovalPreview` (first draft) | Showed an empty "Failed items" table when nothing failed | Table only when failures exist |
+| 2026-10-20 | `e2e/lab.spec.ts` (first draft) | Parallel tests shared the mock's state, so results interfered (flaky) | Serial mode for the file, with a reset before each test |
+| 2026-10-20 | `TemplateField` (first draft) | Re-implemented input styling by hand instead of using `DsInput` (design-language violation) | Rewrote it on `DsInput` and `DsSelect` |
+| 2026-10-20 | `TemplateField.spec` AC-4 | My expected count (9) was wrong; the component's 2 was right (checked by hand) | Fixed the test, not the component |
+| 2026-10-20 | `BulkApprovalPreview.spec` AC-3, `DenseList.spec` AC-13 | A meaningless assertion and a convoluted loop | Rewrote both to assert what a user sees |
+| 2026-10-20 | `tools/*.mjs` CLIs | Did not run when called through a symlinked path (macOS `/var`, plugin cache) | Compare real paths |
+| 2026-10-20 | `hooks.spec` | Shared probe folder leaked a broken file into the next case | One folder per case, removed afterwards |
+| 2026-10-20 | Environment | Node 20 is first on the PATH; Vitest 5 cannot run on it | `.nvmrc` (26), `engines`, the verify hook says it skipped tests |
+| 2026-10-20 | Planted weak screens, reviewer run | Reviewer judged all five FAIL and named each planted defect (hard-coded styles, swallowed error with no partial-failure state, `v-html`, 2,000 rows filtered in the browser, failed items dropped) | No tuning needed on this run; re-run it yourself before the check-in |
+| 2026-10-20 | `BulkApprovalPreview` (reviewer B1, M1, M2) | Approve stayed live after a result and a second approve duplicated failures; focus lost when the apply request failed; unaccounted items were invisible | Approve hidden after a result; failures de-duplicated in the store; focus goes to the error; "neither applied nor failed" count. Criteria AC-16 to AC-18 and tests added |
+| 2026-10-20 | `DenseList` (reviewer B1, M1, M2) | Every query unmounted the toolbar and table (focus lost while typing); a pending search was dropped by a filter click; focus lost after a rejected save; Escape worked while saving | Controls stay mounted while refreshing (`aria-busy`); the query takes the typed text; focus returns to the field; Escape ignored while saving. AC-15 to AC-17 added |
+| 2026-10-20 | `TemplateField` (reviewer M1, m1) | `{{ dealer.name }` (missing brace) was counted as text and the preview looked final; spaces-only input showed hint and error together | Malformed placeholders reported; spaces-only is empty. AC-12, AC-13 added |
+| 2026-10-20 | Store and budget (reviewer M3, m3) | A bare 429 gave no duration; `1,2,3` parsed as $123 | Duration from `retry_after`; strict thousands grouping and a maximum |
+| 2026-10-20 | Seeded defects | Removed four guards on purpose: Approve after result, focus move, toolbar kept on refresh, over-limit check | Each made its tests fail; code restored |
+
+Not applied from the reviewer (decide yourself): paging the held and failed tables (m3), describing locked rows to screen readers before editing (m1), one live region instead of three in the template field (m2), counting code points vs UTF-16 (m4).
