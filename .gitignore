@@ -1,0 +1,9 @@
+node_modules
+vendor
+dist
+coverage
+storybook-static
+test-results
+playwright-report
+.env
+.DS_Store

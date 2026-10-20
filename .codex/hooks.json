@@ -1,0 +1,44 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/Users/vanessa.aristizabal/Dev/stream/.codex/hooks/guard-files.mjs'"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/Users/vanessa.aristizabal/Dev/stream/.codex/hooks/guard-bash.mjs'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/Users/vanessa.aristizabal/Dev/stream/.codex/hooks/format.mjs'"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node '/Users/vanessa.aristizabal/Dev/stream/.codex/hooks/check-deps.mjs'"
+          }
+        ]
+      }
+    ]
+  }
+}
