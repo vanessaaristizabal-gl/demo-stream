@@ -1,21 +1,36 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from 'vue'
-import { FlaskConical } from 'lucide-vue-next'
+import { FlaskConical, Save } from 'lucide-vue-next'
 import { DsButton, DsCard, DsInput, DsMessage, DsSegmented, DsSelect } from '@/design-system'
-import type { PlatformInfo, SandboxCampaignInput, SandboxPlatform } from '@/shared/api/types'
+import type { PlatformInfo, SandboxCampaignDetail, SandboxCampaignInput, SandboxCampaignUpdate, SandboxPlatform } from '@/shared/api/types'
 
-const props = defineProps<{ platforms: PlatformInfo[]; pending?: boolean; errorMessage?: string | null }>()
-const emit = defineEmits<{ submit: [input: SandboxCampaignInput] }>()
+const props = defineProps<{
+  platforms: PlatformInfo[]
+  pending?: boolean
+  errorMessage?: string | null
+  /** Platform to start on when creating (the tab the person came from). */
+  platform?: SandboxPlatform
+  /** Present when editing: the platform is fixed, a status can be set, and the button saves. */
+  campaign?: SandboxCampaignDetail
+}>()
+const emit = defineEmits<{ submit: [input: SandboxCampaignInput]; save: [changes: SandboxCampaignUpdate] }>()
+
+const editing = computed(() => props.campaign !== undefined)
 
 const draft = reactive({
-  platform: 'google' as SandboxPlatform,
-  name: '',
-  goal: '',
-  budget: '150',
-  vehicle: '',
-  location: '',
-  landingUrl: '',
+  platform: (props.campaign?.platform ?? props.platform ?? 'google') as SandboxPlatform,
+  name: props.campaign?.name ?? '',
+  goal: props.campaign?.goal ?? '',
+  status: (props.campaign?.status === 'paused' ? 'paused' : 'active') as 'active' | 'paused',
+  budget: props.campaign ? (props.campaign.daily_budget / 100).toFixed(2) : '150',
+  vehicle: props.campaign?.inputs.vehicle ?? '',
+  location: props.campaign?.inputs.location ?? '',
+  landingUrl: props.campaign?.inputs.landing_url ?? '',
 })
+const STATUS_OPTIONS = [
+  { label: 'Active', value: 'active' },
+  { label: 'Paused', value: 'paused' },
+]
 
 const current = computed(() => props.platforms.find((p) => p.platform === draft.platform))
 const platformOptions = computed(() => props.platforms.map((p) => ({ label: p.label, value: p.platform })))
@@ -48,6 +63,18 @@ const valid = computed(
 
 function onSubmit(): void {
   if (!valid.value) return
+  if (editing.value) {
+    emit('save', {
+      name: draft.name.trim(),
+      goal: draft.goal,
+      status: draft.status,
+      daily_budget: budgetCents.value,
+      vehicle: draft.vehicle.trim(),
+      location: draft.location.trim(),
+      landing_url: draft.landingUrl.trim(),
+    })
+    return
+  }
   emit('submit', {
     platform: draft.platform,
     name: draft.name.trim(),
@@ -63,10 +90,15 @@ function onSubmit(): void {
 <template>
   <DsCard>
     <form class="ds-stack" @submit.prevent="onSubmit">
-      <h2>Create a simulated campaign</h2>
-      <DsSegmented v-model="draft.platform" label="Platform" :options="platformOptions" />
+      <h2>{{ editing ? 'Campaign settings' : 'Create a simulated campaign' }}</h2>
+      <p v-if="editing" class="ds-muted">
+        {{ current?.label }} campaigns cannot change platform. Saving rebuilds the structure the platform would hold; the history of metrics
+        is kept.
+      </p>
+      <DsSegmented v-else v-model="draft.platform" label="Platform" :options="platformOptions" />
       <DsInput v-model="draft.name" label="Campaign name" required />
       <DsSelect v-model="draft.goal" label="Goal (platform setting)" :options="goalOptions" />
+      <DsSelect v-if="editing" v-model="draft.status" label="Status" :options="STATUS_OPTIONS" />
       <DsInput v-model="draft.budget" label="Daily budget (USD)" inputmode="decimal" required :error="budgetError" />
       <DsInput v-model="draft.vehicle" label="Vehicle model" placeholder="Camry" required />
       <DsInput v-model="draft.location" label="Target city" placeholder="Austin" required />
@@ -80,7 +112,9 @@ function onSubmit(): void {
       />
       <DsMessage v-if="errorMessage" tone="danger">{{ errorMessage }}</DsMessage>
       <div class="ds-row">
-        <DsButton type="submit" :icon="FlaskConical" :loading="pending" :disabled="!valid">Create in sandbox</DsButton>
+        <DsButton type="submit" :icon="editing ? Save : FlaskConical" :loading="pending" :disabled="!valid">{{
+          editing ? 'Save changes' : 'Create in sandbox'
+        }}</DsButton>
       </div>
     </form>
   </DsCard>

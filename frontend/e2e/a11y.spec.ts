@@ -18,8 +18,11 @@ const pages = [
   ['campaign detail', '/campaigns/1'],
   ['approvals', '/approvals'],
   ['changelog', '/changelog'],
-  ['sandbox', '/sandbox'],
-  ['simulated campaign', '/sandbox/1'],
+  ['campaigns, Meta tab', '/campaigns?tab=meta'],
+  ['new simulated campaign', '/campaigns/new'],
+  ['simulated campaign', '/campaigns/simulated/1'],
+  ['simulated campaign structure', '/campaigns/simulated/1?tab=structure'],
+  ['simulated campaign settings', '/campaigns/simulated/1?tab=settings'],
 ] as const
 
 for (const scheme of ['light', 'dark'] as const) {

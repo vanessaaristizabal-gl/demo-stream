@@ -15,7 +15,7 @@ describe('AppHeader', () => {
 
     expect(w.text()).toContain('Ana Approver')
     expect(w.text()).toContain('approver')
-    expect(w.get('nav[aria-label="Main"]').text()).toMatch(/Campaigns.*Approvals.*Changelog.*Sandbox.*Lab/)
+    expect(w.get('nav[aria-label="Main"]').text()).toMatch(/Campaigns.*Approvals.*Changelog.*Lab/)
   })
 
   it('labels the theme button for the theme it switches to', () => {

@@ -81,6 +81,11 @@ const sandboxCampaign = (id: number, input: Record<string, unknown>) => {
     daily_budget: Number(input.daily_budget),
     created_at: '2026-10-19T14:30:00+00:00',
     totals: sandboxTotals(platform),
+    inputs: {
+      vehicle: String(input.vehicle ?? 'Camry'),
+      location: String(input.location ?? 'Austin'),
+      landing_url: String(input.landing_url ?? 'https://dealer.example.com/camry'),
+    },
     structure: {
       campaign: { id: '4821907356', name: String(input.name), status: platform === 'google' ? 'ENABLED' : 'ACTIVE' },
       groups: [
@@ -120,6 +125,8 @@ export async function mockApi(
     submissions: [] as { headers: Record<string, string>; body: unknown }[],
     decisions: [] as string[],
     sandboxCreations: [] as { headers: Record<string, string>; body: unknown }[],
+    sandboxEdits: [] as { headers: Record<string, string>; body: unknown }[],
+    sandboxDeletions: [] as { headers: Record<string, string> }[],
   }
   const sandbox = [sandboxCampaign(1, { platform: 'google', name: 'Camry - Search leads', goal: 'leads', daily_budget: 15000 })]
   const user = USERS[role]
@@ -193,7 +200,18 @@ export async function mockApi(
       const sandboxMatch = path.match(/^\/sandbox\/campaigns\/(\d+)$/)
       if (sandboxMatch) {
         const found = sandbox.find((c) => c.id === Number(sandboxMatch[1]))
-        return found ? json(route, { data: found }) : json(route, { message: 'Not found' }, 404)
+        if (!found) return json(route, { message: 'Not found' }, 404)
+        if (method === 'PATCH') {
+          log.sandboxEdits.push({ headers: req.headers(), body: req.postDataJSON() })
+          Object.assign(found, req.postDataJSON())
+          return json(route, { data: found })
+        }
+        if (method === 'DELETE') {
+          log.sandboxDeletions.push({ headers: req.headers() })
+          sandbox.splice(sandbox.indexOf(found), 1)
+          return route.fulfill({ status: 204 })
+        }
+        return json(route, { data: found })
       }
       if (path === '/change-requests') return json(route, { data: [request], meta: { current_page: 1, last_page: 1, total: 1 } })
       if (path === '/change-requests/7/approve') {

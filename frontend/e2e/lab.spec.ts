@@ -26,6 +26,7 @@ test.describe('bulk approval preview', () => {
 
     const summary = page.getByRole('term').filter({ hasText: 'Held' }).locator('xpath=following-sibling::dd')
     await expect(summary).toHaveText('15')
+    await page.getByRole('tab', { name: /^Held/ }).click()
     await expect(page.getByRole('table', { name: 'Held items and the reason for each' })).toContainText('Locked by manufacturer rule')
 
     await page.getByRole('button', { name: 'Approve 285 changes' }).click()
@@ -86,6 +87,7 @@ test.describe('playbook deploy wizard', () => {
     await page.getByRole('button', { name: 'Build the preview' }).click()
 
     await expect(page.getByText('Preview only: nothing is written until you approve.')).toBeVisible()
+    await page.getByRole('tab', { name: /^Held/ }).click()
     const held = page.getByRole('table', { name: 'Held items and the reason for each' })
     await expect(held).toContainText('No active Salesforce budget')
     await expect(held).toContainText('above the Salesforce-approved envelope')

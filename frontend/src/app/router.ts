@@ -52,6 +52,19 @@ export const router = createRouter({
       meta: { crumb: 'Campaigns' },
     },
     {
+      path: '/campaigns/new',
+      name: 'campaign-new',
+      component: () => import('@/features/campaigns/simulated/views/NewSimulatedCampaignView.vue'),
+      meta: { crumb: 'New simulated campaign', parent: 'campaigns' },
+    },
+    {
+      path: '/campaigns/simulated/:id(\\d+)',
+      name: 'campaign-simulated',
+      component: () => import('@/features/campaigns/simulated/views/SimulatedCampaignView.vue'),
+      props: (route) => ({ id: Number(route.params.id) }),
+      meta: { crumb: 'Simulated campaign', parent: 'campaigns' },
+    },
+    {
       path: '/campaigns/:id(\\d+)',
       name: 'campaign',
       component: () => import('@/features/campaigns/views/CampaignDetailView.vue'),
@@ -70,19 +83,9 @@ export const router = createRouter({
       component: () => import('@/features/changelog/views/ChangelogView.vue'),
       meta: { crumb: 'Changelog' },
     },
-    {
-      path: '/sandbox',
-      name: 'sandbox',
-      component: () => import('@/features/sandbox/views/SandboxView.vue'),
-      meta: { crumb: 'Sandbox' },
-    },
-    {
-      path: '/sandbox/:id(\\d+)',
-      name: 'sandbox-campaign',
-      component: () => import('@/features/sandbox/views/SandboxCampaignView.vue'),
-      props: (route) => ({ id: Number(route.params.id) }),
-      meta: { crumb: 'Simulated campaign', parent: 'sandbox' },
-    },
+    // The sandbox became part of Campaigns (simulated campaigns sit beside live ones); old links still work.
+    { path: '/sandbox', redirect: { name: 'campaigns' } },
+    { path: '/sandbox/:id(\\d+)', redirect: (to) => ({ name: 'campaign-simulated', params: { id: to.params.id } }) },
     // The practice lab runs on a mock served by `vite dev` (lab-api/), so it exists only there.
     ...(import.meta.env.DEV ? labRoutes : []),
     {

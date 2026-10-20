@@ -95,6 +95,7 @@ export function makeDailyMetrics(days = 3): SandboxDailyMetric[] {
 export function makeSandboxDetail(overrides: Partial<SandboxCampaignDetail> = {}): SandboxCampaignDetail {
   return {
     ...makeSandboxCampaign(),
+    inputs: { vehicle: 'Camry', location: 'Austin', landing_url: 'https://dealer.example.com/camry' },
     structure: {
       campaign: {
         id: '4821907356',

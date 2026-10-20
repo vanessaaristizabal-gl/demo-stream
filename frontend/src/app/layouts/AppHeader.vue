@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Beaker, FlaskConical, History, ListChecks, LogOut, Megaphone, Moon, Sun, Zap } from 'lucide-vue-next'
+import { Beaker, History, ListChecks, LogOut, Megaphone, Moon, Sun, Zap } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
 import { DsButton } from '@/design-system'
 import type { User } from '@/shared/api/types'
@@ -12,7 +12,6 @@ const LINKS = [
   { name: 'campaigns', label: 'Campaigns', icon: Megaphone },
   { name: 'approvals', label: 'Approvals', icon: ListChecks },
   { name: 'changelog', label: 'Changelog', icon: History },
-  { name: 'sandbox', label: 'Sandbox', icon: FlaskConical },
   ...(import.meta.env.DEV ? [{ name: 'lab', label: 'Lab', icon: Beaker }] : []),
 ]
 </script>

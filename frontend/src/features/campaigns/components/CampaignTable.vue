@@ -1,55 +1,73 @@
 <script setup lang="ts">
-import { Inbox } from 'lucide-vue-next'
-import { DsCard, DsEmptyState, DsInput, DsPagination, DsTable, DsTag, useTable, type DsColumn } from '@/design-system'
-import type { Campaign } from '@/shared/api/types'
+import { Inbox, Pencil, Trash2 } from 'lucide-vue-next'
+import { DsButton, DsCard, DsEmptyState, DsInput, DsPagination, DsTable, DsTag, useTable, type DsColumn } from '@/design-system'
 import DateText from '@/shared/components/DateText.vue'
 import StatusBadge from '@/shared/components/StatusBadge.vue'
 import { dateSortKey, formatMoney } from '@/shared/utils/format'
+import type { CampaignRow } from '../rows'
 
-const props = defineProps<{ campaigns: Campaign[] }>()
-const emit = defineEmits<{ select: [id: number] }>()
+const props = defineProps<{ rows: CampaignRow[] }>()
+const emit = defineEmits<{ open: [row: CampaignRow]; edit: [row: CampaignRow]; remove: [row: CampaignRow] }>()
 
 const COLUMNS: DsColumn[] = [
   { key: 'name', label: 'Campaign', sortable: true },
-  { key: 'dealer', label: 'Dealer', sortable: true },
-  { key: 'provider', label: 'Provider', sortable: true },
+  { key: 'kind', label: 'Source', sortable: true },
+  { key: 'owner', label: 'Dealer', sortable: true },
   { key: 'status', label: 'Status', sortable: true },
   { key: 'budget', label: 'Daily budget', sortable: true, align: 'end' },
   { key: 'created', label: 'Created', sortable: true },
+  { key: 'actions', label: 'Actions' },
 ]
 
-const { search, sort, page, pageCount, pageRows } = useTable(() => props.campaigns, {
+const { search, sort, page, pageCount, pageRows } = useTable(() => props.rows, {
   pageSize: 10,
   initialSort: { key: 'name', dir: 'asc' },
-  searchText: (c) => `${c.name} ${c.account?.dealer_name ?? ''} ${c.account?.provider ?? ''}`,
+  searchText: (r) => `${r.name} ${r.owner} ${r.kind}`,
   accessors: {
-    dealer: (c) => c.account?.dealer_name,
-    provider: (c) => c.account?.provider,
-    budget: (c) => c.live.daily_budget,
-    created: (c) => dateSortKey(c.created_at),
+    budget: (r) => r.daily_budget,
+    created: (r) => dateSortKey(r.created_at),
   },
 })
 </script>
 
 <template>
-  <DsCard v-if="campaigns.length === 0">
-    <DsEmptyState title="No campaigns yet" :icon="Inbox">Adopted campaigns will appear here.</DsEmptyState>
+  <DsCard v-if="rows.length === 0">
+    <DsEmptyState title="No campaigns yet" :icon="Inbox">Adopted campaigns and simulated ones will appear here.</DsEmptyState>
   </DsCard>
   <DsCard v-else :padded="false" class="table-card">
     <div class="toolbar">
-      <DsInput v-model="search" label="Search campaigns" type="search" placeholder="Name, dealer or provider" />
+      <DsInput v-model="search" label="Search campaigns" type="search" placeholder="Name, dealer or source" />
     </div>
-    <DsTable v-model:sort="sort" :columns="COLUMNS" :rows="pageRows" row-key="id" caption="Campaigns">
+    <DsTable v-model:sort="sort" :columns="COLUMNS" :rows="pageRows" row-key="key" caption="Campaigns">
       <template #cell-name="{ row }">
-        <a href="#" class="link" @click.prevent="emit('select', row.id)">{{ row.name }}</a>
+        <a href="#" class="link" @click.prevent="emit('open', row)">{{ row.name }}</a>
       </template>
-      <template #cell-dealer="{ row }">{{ row.account?.dealer_name ?? '—' }}</template>
-      <template #cell-provider="{ row }">
-        <DsTag v-if="row.account" tone="info">{{ row.account.provider }}</DsTag>
+      <template #cell-kind="{ row }">
+        <DsTag :tone="row.kind === 'live' ? 'info' : 'neutral'">{{ row.kind === 'live' ? 'Live' : 'Simulated' }}</DsTag>
       </template>
       <template #cell-status="{ row }"><StatusBadge :status="row.status" /></template>
-      <template #cell-budget="{ row }">{{ formatMoney(row.live.daily_budget) }}</template>
+      <template #cell-budget="{ row }">{{ formatMoney(row.daily_budget) }}</template>
       <template #cell-created="{ row }"><DateText :value="row.created_at" /></template>
+      <template #cell-actions="{ row }">
+        <span class="actions">
+          <!-- A live campaign changes only through approval: Edit opens a change request. Only simulated ones can be deleted. -->
+          <DsButton
+            size="sm"
+            variant="ghost"
+            :icon="Pencil"
+            :aria-label="row.kind === 'live' ? `Request a change to ${row.name}` : `Edit ${row.name}`"
+            @click="emit('edit', row)"
+          />
+          <DsButton
+            v-if="row.kind === 'simulated'"
+            size="sm"
+            variant="ghost"
+            :icon="Trash2"
+            :aria-label="`Delete ${row.name}`"
+            @click="emit('remove', row)"
+          />
+        </span>
+      </template>
       <template #empty>No campaigns match your search.</template>
     </DsTable>
     <DsPagination v-model:page="page" :page-count="pageCount" />
@@ -68,5 +86,9 @@ const { search, sort, page, pageCount, pageRows } = useTable(() => props.campaig
 .link {
   color: var(--ds-color-text-link);
   font-weight: var(--ds-font-weight-semibold);
+}
+.actions {
+  display: inline-flex;
+  gap: var(--ds-space-1);
 }
 </style>

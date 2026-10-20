@@ -64,7 +64,6 @@ for (const [name, path] of [
   ['campaigns', '/campaigns'],
   ['approvals', '/approvals'],
   ['changelog', '/changelog'],
-  ['sandbox', '/sandbox'],
 ] as const) {
   test(`${name} is a main page: no Back, even after navigating from elsewhere`, async ({ page }) => {
     await mockApi(page, { role: 'approver' })

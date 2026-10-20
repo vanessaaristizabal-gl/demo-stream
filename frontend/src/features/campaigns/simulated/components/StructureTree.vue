@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { DsCard, DsTag } from '@/design-system'
+import { DsAccordion, DsCard, DsTag } from '@/design-system'
 import type { PlatformInfo, SandboxCampaignDetail } from '@/shared/api/types'
 
 const props = defineProps<{ campaign: SandboxCampaignDetail; platform?: PlatformInfo }>()
@@ -18,6 +18,16 @@ function entries(obj: Record<string, unknown>): { key: string; value: string }[]
     .map(([key, value]) => ({ key, value: typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value) }))
 }
 
+const sections = computed(() => [
+  { value: 'campaign', title: 'Campaign', summary: props.campaign.name },
+  ...props.campaign.structure.groups.map((g) => ({
+    value: `group-${g.id}`,
+    title: `${groupLabel.value}: ${g.name}`,
+    summary: `${g.ads.length} ${g.ads.length === 1 ? adLabel.value : adLabel.value + 's'}`,
+  })),
+  { value: 'raw', title: 'Raw JSON payload' },
+])
+
 const rawJson = computed(() => JSON.stringify(props.campaign.structure, null, 2))
 </script>
 
@@ -32,22 +42,18 @@ const rawJson = computed(() => JSON.stringify(props.campaign.structure, null, 2)
         </p>
       </div>
 
-      <section aria-labelledby="structure-campaign">
-        <h3 id="structure-campaign">Campaign</h3>
-        <dl class="fields">
-          <template v-for="f in entries(campaign.structure.campaign)" :key="f.key">
-            <dt>{{ f.key }}</dt>
-            <dd>{{ f.value }}</dd>
-          </template>
-        </dl>
-      </section>
+      <DsAccordion :items="sections" :default-open="['campaign']">
+        <template #item-campaign>
+          <dl class="fields">
+            <template v-for="f in entries(campaign.structure.campaign)" :key="f.key">
+              <dt>{{ f.key }}</dt>
+              <dd>{{ f.value }}</dd>
+            </template>
+          </dl>
+        </template>
 
-      <ul class="groups" :aria-label="`${groupLabel}s`">
-        <li v-for="g in campaign.structure.groups" :key="g.id" class="group">
-          <h3>
-            {{ groupLabel }}: {{ g.name }}
-            <DsTag :tone="g.status === 'ENABLED' || g.status === 'ACTIVE' ? 'success' : 'warning'">{{ g.status }}</DsTag>
-          </h3>
+        <template v-for="g in campaign.structure.groups" :key="g.id" #[`item-group-${g.id}`]>
+          <DsTag :tone="g.status === 'ENABLED' || g.status === 'ACTIVE' ? 'success' : 'warning'">{{ g.status }}</DsTag>
           <dl class="fields">
             <template v-for="f in entries(g)" :key="f.key">
               <dt>{{ f.key }}</dt>
@@ -65,13 +71,12 @@ const rawJson = computed(() => JSON.stringify(props.campaign.structure, null, 2)
               </dl>
             </li>
           </ul>
-        </li>
-      </ul>
+        </template>
 
-      <details class="raw">
-        <summary>Raw JSON payload</summary>
-        <pre tabindex="0">{{ rawJson }}</pre>
-      </details>
+        <template #item-raw>
+          <pre class="raw" tabindex="0">{{ rawJson }}</pre>
+        </template>
+      </DsAccordion>
     </div>
   </DsCard>
 </template>
@@ -116,7 +121,7 @@ dd {
   border: var(--ds-border-width-thin) solid var(--ds-color-border-default);
   border-radius: var(--ds-radius-sm);
 }
-.raw pre {
+.raw {
   max-height: 24rem;
   overflow: auto;
   padding: var(--ds-space-3);

@@ -79,4 +79,50 @@ describe('sandbox store', () => {
 
     expect(store.items.map((c) => c.id)).toEqual([1])
   })
+
+  it('edits a campaign with a PATCH and an Idempotency-Key and updates the list row', async () => {
+    const store = useSandboxStore()
+    api.mockResolvedValueOnce({ data: [makeSandboxCampaign()] })
+    await store.fetchAll()
+    api.mockResolvedValueOnce({ data: makeSandboxDetail({ name: 'Renamed', daily_budget: 20000, status: 'paused' }) })
+
+    await store.update(1, { name: 'Renamed', daily_budget: 20000, status: 'paused' }, 'k-edit')
+
+    expect(api).toHaveBeenLastCalledWith('/sandbox/campaigns/1', {
+      method: 'PATCH',
+      body: { name: 'Renamed', daily_budget: 20000, status: 'paused' },
+      headers: { 'Idempotency-Key': 'k-edit' },
+    })
+    expect(store.items[0]).toMatchObject({ name: 'Renamed', daily_budget: 20000, status: 'paused' })
+  })
+
+  it('a failed edit leaves the list unchanged', async () => {
+    const store = useSandboxStore()
+    api.mockResolvedValueOnce({ data: [makeSandboxCampaign()] })
+    await store.fetchAll()
+    api.mockRejectedValueOnce(new client.ApiError(422, 'The daily budget must be at least 100.'))
+    await expect(store.update(1, { daily_budget: 50 }, 'k')).rejects.toThrow('at least 100')
+    expect(store.items[0].daily_budget).toBe(makeSandboxCampaign().daily_budget)
+  })
+
+  it('deletes a campaign with a DELETE and an Idempotency-Key and drops its row', async () => {
+    const store = useSandboxStore()
+    api.mockResolvedValueOnce({ data: [makeSandboxCampaign(), makeSandboxCampaign({ id: 2 })] })
+    await store.fetchAll()
+    api.mockResolvedValueOnce(undefined)
+
+    await store.remove(1, 'k-del')
+
+    expect(api).toHaveBeenLastCalledWith('/sandbox/campaigns/1', { method: 'DELETE', headers: { 'Idempotency-Key': 'k-del' } })
+    expect(store.items.map((c) => c.id)).toEqual([2])
+  })
+
+  it('a failed delete keeps the row', async () => {
+    const store = useSandboxStore()
+    api.mockResolvedValueOnce({ data: [makeSandboxCampaign()] })
+    await store.fetchAll()
+    api.mockRejectedValueOnce(new client.ApiError(500, 'Down'))
+    await expect(store.remove(1, 'k')).rejects.toThrow('Down')
+    expect(store.items).toHaveLength(1)
+  })
 })

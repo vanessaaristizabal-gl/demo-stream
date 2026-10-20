@@ -137,6 +137,8 @@ export interface SandboxDailyMetric {
 }
 
 export interface SandboxCampaignDetail extends SandboxCampaign {
+  /** What the campaign was created or last edited with. */
+  inputs: Omit<SandboxCampaignInput, 'platform' | 'goal' | 'daily_budget' | 'name'> & Partial<SandboxCampaignInput>
   structure: { campaign: Record<string, unknown>; groups: SandboxGroup[] }
   daily_metrics: SandboxDailyMetric[]
 }
@@ -151,6 +153,9 @@ export interface SandboxCampaignInput {
   location: string
   landing_url: string
 }
+
+/** Only the fields to change. The platform cannot change after creation. */
+export type SandboxCampaignUpdate = Partial<Omit<SandboxCampaignInput, 'platform'>> & { status?: 'active' | 'paused' }
 
 export interface PlatformMetricInfo {
   key: string

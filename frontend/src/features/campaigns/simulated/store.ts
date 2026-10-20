@@ -1,7 +1,15 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { api } from '@/shared/api/client'
-import type { Paginated, PlatformInfo, Resource, SandboxCampaign, SandboxCampaignDetail, SandboxCampaignInput } from '@/shared/api/types'
+import type {
+  Paginated,
+  PlatformInfo,
+  Resource,
+  SandboxCampaign,
+  SandboxCampaignDetail,
+  SandboxCampaignInput,
+  SandboxCampaignUpdate,
+} from '@/shared/api/types'
 
 /** The demo sandbox: simulated Google Ads and Meta campaigns. It never reaches a real account. */
 export const useSandboxStore = defineStore('sandbox', () => {
@@ -39,5 +47,24 @@ export const useSandboxStore = defineStore('sandbox', () => {
     return created
   }
 
-  return { items, platforms, loading, fetchAll, fetchCatalog, fetchOne, create }
+  /** Direct edit: a simulated campaign has no live account to protect. The key makes a retried edit safe. */
+  async function update(id: number, changes: SandboxCampaignUpdate, idempotencyKey: string): Promise<SandboxCampaignDetail> {
+    const saved = (
+      await api<Resource<SandboxCampaignDetail>>(`/sandbox/campaigns/${id}`, {
+        method: 'PATCH',
+        body: changes,
+        headers: { 'Idempotency-Key': idempotencyKey },
+      })
+    ).data
+    items.value = items.value.map((c) => (c.id === id ? { ...c, ...saved } : c))
+    return saved
+  }
+
+  /** Removes the simulated campaign. Live campaigns are never deleted from here (they change only through approval). */
+  async function remove(id: number, idempotencyKey: string): Promise<void> {
+    await api<void>(`/sandbox/campaigns/${id}`, { method: 'DELETE', headers: { 'Idempotency-Key': idempotencyKey } })
+    items.value = items.value.filter((c) => c.id !== id)
+  }
+
+  return { items, platforms, loading, fetchAll, fetchCatalog, fetchOne, create, update, remove }
 })
