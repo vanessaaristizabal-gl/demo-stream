@@ -1,0 +1,10 @@
+{
+  "note": "Five screens that are weak on purpose. They live outside src/ so they are never built, linted as product code or shipped. The reviewer must catch every one; `npm run review:fixtures` proves the deterministic first pass catches what it can.",
+  "screens": [
+    { "file": "01-HardCodedStyles.vue", "weakness": "hard-coded colours and spacing instead of tokens", "rule": "hard-coded-style", "semantic": false },
+    { "file": "02-NoErrorState.vue", "weakness": "no error state: a failed load is swallowed and shows an empty list; no partial-failure state either", "rule": "missing-error-state", "semantic": true },
+    { "file": "03-VHtmlAdCopy.vue", "weakness": "renders user-typed ad copy with v-html (XSS)", "rule": "v-html", "semantic": false },
+    { "file": "04-LoadsAll2000.vue", "weakness": "loads all 2,000 rows and filters in the browser", "rule": "loads-all-rows", "semantic": true },
+    { "file": "05-DropsFailedItems.vue", "weakness": "bulk screen reports the successful items and drops the failed ones, then says Done", "rule": "batch-drops-failures", "semantic": true }
+  ]
+}

@@ -1,0 +1,8 @@
+dist
+coverage
+storybook-static
+test-results
+playwright-report
+package-lock.json
+src/design-system/tokens/tokens.css
+src/design-system/tokens/tokens.ts

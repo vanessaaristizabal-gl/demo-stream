@@ -1,0 +1,13 @@
+{
+  "bundle": {
+    "initialGzipKb": 100,
+    "chunkGzipKb": 8
+  },
+  "denseList": {
+    "maxDomNodes": 3000,
+    "maxRowsRendered": 100,
+    "maxFirstRowsMs": 2000,
+    "maxFilterMs": 1000,
+    "maxResponseKb": 60
+  }
+}
