@@ -25,6 +25,11 @@ The design language is decided and written by a person (`frontend/tokens/tokens.
 - State is never colour alone. Works at 320 px without sideways page scroll, in light and dark themes.
 - Every page has a breadcrumb; nested pages (route `meta.parent`) also have Back; main pages never show Back.
 
+## Information design and navigation
+- A page has one job and its sections one task each: peer views go in `DsTabs` (state in the URL with `useTabQuery`), optional or nested detail in `DsAccordion`, sequences in a wizard that ends in a preview and one approval. Never stack many blocks on one page.
+- Errors, partial failures, held items and locks are never hidden in a closed panel or inactive tab without a count or status in the label.
+- Inactive tabs and closed sections mount nothing; lists beyond about 100 rows are paged by the server; refreshing keeps controls mounted. Full rule: `.claude/rules/ux-information-design.md`.
+
 ## Security
 - Never `v-html` / `innerHTML` with text a user typed or the server returned. Render text.
 - No secrets, tokens or credentials in the bundle. Never call real external accounts: the Google Ads and Meta providers are driven by fakes (`PROVIDERS_DRIVER=fake`).
