@@ -1,15 +1,18 @@
 # Spec: Template field with a character limit
+
 Component: features/lab/components/TemplateField
 
 An administrator writes ad copy such as `{{ dealer.name }} - 0% APR this month`. Placeholders are filled in when the ad is built, so the limit of 30 characters applies to the text AFTER substitution, not to what was typed.
 
 ## States
+
 - empty
 - valid
 - over-limit
 - unknown-placeholder
 
 ## Acceptance criteria
+
 - AC-1: The field has a visible label and shows how many characters the filled-in text has out of 30, for the selected dealer.
 - AC-2: The preview shows the template with every placeholder replaced by the selected dealer's value.
 - AC-3: Changing the selected dealer recalculates the preview and the count.
@@ -20,6 +23,7 @@ An administrator writes ad copy such as `{{ dealer.name }} - 0% APR this month`.
 - AC-8: An empty template shows a hint and no error.
 
 ## Edge cases
+
 - AC-9: A text of exactly 30 filled-in characters is valid; 31 is not.
 - AC-10: The same placeholder may appear twice, and both are counted.
 - AC-11: Typed text is rendered as plain text, never as HTML.
@@ -28,4 +32,5 @@ An administrator writes ad copy such as `{{ dealer.name }} - 0% APR this month`.
 - AC-13: A template of only spaces counts as empty: the hint shows and no error does.
 
 ## Out of scope
+
 Saving the template, other placeholders than `dealer.name` and `dealer.city`, translation, and rich text.

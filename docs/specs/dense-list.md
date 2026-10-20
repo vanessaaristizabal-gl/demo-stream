@@ -1,9 +1,11 @@
 # Spec: Dense campaign list (2,000 rows)
+
 Component: features/lab/components/DenseList
 
 An operator scans, filters and sorts 2,000 campaigns and fixes one budget inline. The server does the filtering, sorting and paging; the browser only ever holds one page.
 
 ## States
+
 - loading
 - error
 - empty
@@ -13,6 +15,7 @@ An operator scans, filters and sorts 2,000 campaigns and fixes one budget inline
 - rate-limited
 
 ## Acceptance criteria
+
 - AC-1: The list shows one page of rows (at most 50), with the total number of matching rows.
 - AC-2: Changing the status filter or the search text emits `query` with that filter and page 1.
 - AC-3: Activating a sortable column header emits `query` with the sort key and direction, and the header exposes its state with `aria-sort`.
@@ -27,6 +30,7 @@ An operator scans, filters and sorts 2,000 campaigns and fixes one budget inline
 - AC-12: The edit control is reachable by keyboard; Enter saves, Escape cancels and returns focus to the edit button.
 
 ## Edge cases
+
 - AC-13: An invalid amount (empty, zero, negative, more than two decimals) is refused before any request and explained.
 - AC-14: The component never receives more than one page, and the table is never rendered with more than 100 rows.
 
@@ -35,4 +39,5 @@ An operator scans, filters and sorts 2,000 campaigns and fixes one budget inline
 - AC-17: Changing the status filter while a search is still pending sends the typed search text with it.
 
 ## Out of scope
+
 Bulk editing, column chooser, export, and virtual scrolling (the page size keeps the DOM small instead).

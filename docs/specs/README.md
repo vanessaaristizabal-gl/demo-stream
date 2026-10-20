@@ -15,6 +15,7 @@ Component: <path under frontend/src, without extension>
 ```
 
 Rules:
+
 - A criterion is a statement a test can fail: observable text, role, event or request, never "looks good".
 - One test per criterion, one story per state. A screen that runs a batch always has `partial-failure` among its states.
 - The author of the spec owns it. Generated code is accountable to the spec, not the other way around.

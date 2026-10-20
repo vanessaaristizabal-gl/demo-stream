@@ -1,9 +1,11 @@
 # Spec: Playbook deploy wizard
+
 Component: features/lab/components/DeployWizard
 
 Modelled on AdVise's guided launch (Playbooks Library to a three-step deploy wizard): pick the brand program whose OEM rulebook is rendered into the playbook, pick the accounts, set the budget cap, pacing and status at write, then review a preview that writes nothing and approve once. Accounts that cannot deploy are held with the reason; every write leaves a receipt in the changelog.
 
 ## States
+
 - loading
 - error
 - accounts
@@ -12,6 +14,7 @@ Modelled on AdVise's guided launch (Playbooks Library to a three-step deploy wiz
 - receipts
 
 ## Acceptance criteria
+
 - AC-1: The wizard shows three steps (Accounts, Settings, Review and deploy) and marks the current one with `aria-current="step"`.
 - AC-2: Choosing the Stellantis program shows how many rules are encoded and the source of the rulebook; "No OEM" says no rulebook is applied.
 - AC-3: Every account shows its OEM and whether Salesforce has an active budget for it; an account without one says it will hold.
@@ -26,8 +29,10 @@ Modelled on AdVise's guided launch (Playbooks Library to a three-step deploy wiz
 - AC-12: When the step changes, focus moves to the new step's heading.
 
 ## Edge cases
+
 - AC-13: Account names and receipt text from the server are rendered as plain text, never as HTML.
 - AC-14: With no receipts the receipts section is not shown.
 
 ## Out of scope
+
 Choosing the campaign type (a single type is offered), editing keywords and model ad groups, the Salesforce budget groups themselves (read only), and scheduling.
