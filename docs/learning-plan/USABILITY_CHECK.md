@@ -10,7 +10,7 @@ Only a person can do this one. Run it before the Friday October 30 check-in, the
 **Watch for (do not prompt):** did they find held items and understand why? did they notice the result without being told? did they understand "rate limit" vs "rejected"? did they find Retry? did they finish by keyboard if they tried?
 
 | Time | What they did or said | Where they hesitated | What I changed (or why not) |
-|---|---|---|---|
-| | | | |
+| ---- | --------------------- | -------------------- | --------------------------- |
+|      |                       |                      |                             |
 
 Log each change as a row in `REVIEW_LOG.md` (artifact: the screen; what was wrong: the observation).
