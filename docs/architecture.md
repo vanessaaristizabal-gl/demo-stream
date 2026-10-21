@@ -28,7 +28,7 @@ app/Http       controllers, FormRequests, API Resources       calls the domain; 
 ```
 src/design-system  tokens + Ds* components (Reka UI primitives, Lucide icons)   depends on nothing
 src/shared         api client and types, formatters, composables                depends on nothing
-src/features/*     auth, campaigns, approvals, changelog, system: store, components, views
+src/features/*     auth, accounts, campaigns (incl. approvals, simulated, bulk, copy), changelog, system: store, components, views
 src/app            shell, router, layout: the only place features are composed
 ```
 

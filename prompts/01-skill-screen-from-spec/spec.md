@@ -1,7 +1,7 @@
 # Spec: Account summary
-Component: features/lab/components/AccountSummary
+Component: features/accounts/components/AccountSummary
 
-Demo spec (ilustrativo, no viene de un ticket). The header of an account page in AdVise: who the account is, its monthly envelope, what was spent today and what is still available, with a pace status.
+Demo spec (ilustrativo, no viene de un ticket). The header of an account page in AdVise: who the account is, its own monthly budget, what was spent today and what is still available, with a pace status.
 
 ## States
 - loading

@@ -2,7 +2,7 @@
 
 Stream is a campaign operations platform for a large automotive marketing agency. It manages paid search and paid social campaigns (Google Ads and Meta) for car dealerships. The product is built around one rule: **every change to a live ad account goes through a single governed write path**.
 
-This guide explains what the project does, how to run it, how to verify it, and how to use the Claude Code tooling in `.claude/` (agents, skills, hooks, rules). It was verified on 2026-10-19 on macOS (PHP 8.4, Node 26, npm 11).
+This guide explains what the project does, how to run it, how to verify it, and how to use the Claude Code tooling in `.claude/` (agents, skills, hooks, rules). For who uses the app, what each page is expected to do, and the diagrams, read [PRODUCT_OVERVIEW.md](PRODUCT_OVERVIEW.md) first. It was verified on 2026-10-19 on macOS (PHP 8.4, Node 26, npm 11).
 
 ---
 
@@ -156,7 +156,9 @@ Independent, **read-only** reviewers that run in their own context with a restri
 
 | Agent                 | Use it when                                                                             | Verified                                                          |
 | --------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `code-reviewer`       | a feature or fix is finished, before calling it done; returns ranked findings           | Ran on the Compliance module and seeder; returned ranked findings |
+| `frontend-code-reviewer` | a front-end change is finished (TypeScript, Vue 3, Pinia, tests, performance, design language); applies the Google TypeScript style guide, the Vue style guide and this repo's rules | Split from the former `code-reviewer`; read-only |
+| `backend-code-reviewer`  | a back-end change is finished (PHP, Laravel, Eloquent, API design, Pest); applies PSR-12, OWASP and the Google API Design Guide | Split from the former `code-reviewer`; read-only |
+| `screen-reviewer`     | a screen is generated or changed; checks it against its spec in `docs/specs/` and the design language | Caught the five weak fixture screens |
 | `a11y-reviewer`       | after any UI change, or when an axe/Storybook a11y check fails; runs `e2e/a11y.spec.ts` | Ran on `DsConfirmDialog`; e2e a11y 18/18 passed; 2 low findings   |
 | `write-path-guardian` | any change touching providers, jobs, change requests, rulebooks or the changelog        | Audited the whole write path; all invariants passed               |
 
@@ -203,12 +205,12 @@ Claude Code also keeps personal notes outside the repo (`~/.claude/projects/.../
 | -------------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------- |
 | `write-path-guardian`                        | Keep, essential                    | Guards the one product rule; mirrors the arch test but also reads for idempotency, locks, receipts |
 | `a11y-reviewer`                              | Keep                               | WCAG 2.2 AA is a non-negotiable and axe cannot see focus lifecycle                                 |
-| `code-reviewer`                              | Keep, lowest value                 | Overlaps the built-in `/code-review` skill; its edge is repo-specific reading order                |
+| `frontend-code-reviewer`, `backend-code-reviewer` | Keep                  | One reviewer per stack, each reading its own rules, skills and standards, so reviews are deeper than a combined one |
 | `create-vue-component`                       | Keep                               | The only skill with a script and real automation                                                   |
 | `create-pinia-store`, `add-laravel-endpoint` | Keep, but they are checklists      | Useful as onboarding docs; could live in `docs/standards/` if you want fewer moving parts          |
 | Hooks (all four)                             | Keep                               | They enforce what must always happen; all verified                                                 |
 | Rules (10)                                   | Keep                               | Small and scoped; no cost unless matched                                                           |
-| `.codex/` and `.agents/`                     | Remove if you do not use Codex CLI | A duplicate of `.claude/` that must be kept in sync by hand                                        |
+| `.codex/` and `.agents/`                     | Remove if you do not use Codex CLI | A generated mirror of `.claude/`: run `npm run sync:codex` in `frontend/` (a test fails when it is stale)                                        |
 
 ---
 
@@ -233,4 +235,4 @@ cd backend  && ./vendor/bin/pest && ./vendor/bin/pint --test && ./vendor/bin/php
 cd frontend && npm run check && npm run e2e && npm run build-storybook
 ```
 
-Start a feature: describe it to Claude, who loads the matching skill and rules; hooks format and lint every save; finish with the relevant reviewer agent (`code-reviewer` always, `a11y-reviewer` for UI, `write-path-guardian` for backend writes).
+Start a feature: describe it to Claude, who loads the matching skill and rules; hooks format and lint every save; finish with the relevant reviewer agent (`frontend-code-reviewer` for front-end changes, `backend-code-reviewer` for back-end changes, `a11y-reviewer` and `screen-reviewer` for UI, `write-path-guardian` for backend writes).

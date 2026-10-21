@@ -1,0 +1,570 @@
+{
+  "title": {
+    "en": "Claude Learning Plan: compliance report",
+    "es": "Plan de aprendizaje de Claude: reporte de cumplimiento"
+  },
+  "subtitle": {
+    "en": "Sr. Web Developer, AdVise | Stream demo app | Verified on October 21, 2026 with Node 26",
+    "es": "Sr. Web Developer, AdVise | Aplicación demo Stream | Verificado el 21 de octubre de 2026 con Node 26"
+  },
+  "statuses": {
+    "done": {
+      "en": "Done",
+      "es": "Cumple"
+    },
+    "partial": {
+      "en": "Partial",
+      "es": "Parcial"
+    },
+    "you": {
+      "en": "Needs you",
+      "es": "Lo hace usted"
+    },
+    "blocked": {
+      "en": "Pending",
+      "es": "Pendiente"
+    },
+    "changed": {
+      "en": "Changed by decision",
+      "es": "Cambiado por decisión"
+    },
+    "notdone": {
+      "en": "Not done (optional)",
+      "es": "No hecho (opcional)"
+    },
+    "out": {
+      "en": "Out of scope",
+      "es": "Fuera de alcance"
+    }
+  },
+  "results": {
+    "en": "Verified: 565 unit tests, 112 Playwright tests with axe (light and dark themes, 320 px), 87 back-end tests, type check, lint with the Vue accessibility rules, license policy, traceability (47 acceptance criteria, 17 states), Storybook build, performance budget (initial JavaScript 80.5 kB gzip of 100), plugin validation in strict mode, and an accessibility and performance audit through the Chrome DevTools MCP on 10 pages, desktop and mobile (accessibility 100, best practices 100, LCP under 0.5 s, CLS 0). Not verified: anything that needs a person (see the status Needs you and Pending).",
+    "es": "Verificado: 565 pruebas unitarias, 112 pruebas de Playwright con axe (temas claro y oscuro, 320 px), 87 pruebas del backend, tipos, lint con las reglas de accesibilidad de Vue, política de licencias, trazabilidad (47 criterios de aceptación, 17 estados), build de Storybook, presupuesto de rendimiento (JavaScript inicial 80,5 kB gzip de 100), validación del plugin en modo estricto y una auditoría de accesibilidad y rendimiento con el MCP de Chrome DevTools en 10 páginas, escritorio y móvil (accesibilidad 100, buenas prácticas 100, LCP menor a 0,5 s, CLS 0). No verificado: todo lo que necesita a una persona (estados Lo hace usted y Pendiente)."
+  },
+  "sections": [
+    {
+      "week": {
+        "en": "Week 1 (Oct 19 to 23): foundations and skills",
+        "es": "Semana 1 (19 al 23 de oct.): fundamentos y skills"
+      },
+      "items": [
+        {
+          "ex": {
+            "en": "Confirm Claude Code works with the Gorilla Logic licence",
+            "es": "Confirmar que Claude Code funciona con la licencia de Gorilla Logic"
+          },
+          "status": "done",
+          "ev": {
+            "en": "Confirmed by you: the work is done with Gorilla Logic's Claude.",
+            "es": "Confirmado por usted: el trabajo se hace con el Claude de Gorilla Logic."
+          }
+        },
+        {
+          "ex": {
+            "en": "Set up the sandbox: Vue 3 + TypeScript, Vite, Vue Router, Pinia, Vitest + Vue Test Utils, ESLint with the Vue accessibility rules, Storybook, Playwright",
+            "es": "Montar el sandbox: Vue 3 + TypeScript, Vite, Vue Router, Pinia, Vitest + Vue Test Utils, ESLint con reglas de accesibilidad de Vue, Storybook, Playwright"
+          },
+          "status": "done",
+          "ev": {
+            "en": "All present. ESLint uses eslint-plugin-vue plus eslint-plugin-vuejs-accessibility, and vue/no-v-html is an error. npm run check is green.",
+            "es": "Todo presente. ESLint usa eslint-plugin-vue y eslint-plugin-vuejs-accessibility, y vue/no-v-html es un error. npm run check está en verde."
+          }
+        },
+        {
+          "ex": {
+            "en": "Write the mock API with the five behaviours: preview with holds, apply with partial failure, locked-field rejection, a 2,000-row list, a rate limit",
+            "es": "Escribir el API mock con los cinco comportamientos: preview con retenidos, apply con fallo parcial, rechazo de campo bloqueado, lista de 2.000 filas, límite de tasa"
+          },
+          "status": "changed",
+          "ev": {
+            "en": "Kept: preview with held items and reasons, apply with retryable partial failure (including provider rate-limit failures), idempotency. The 2,000-row list and the inline locked-field edit were removed on your decision (the status filter on Campaigns replaced them); field locks remain in the real campaign change form. mock-backend/ and the Laravel API.",
+            "es": "Se conservan: preview con retenidos y razones, apply con fallo parcial reintentable (incluye fallos de límite de tasa del proveedor), idempotencia. La lista de 2.000 filas y la edición en línea con campo bloqueado se quitaron por su decisión (las reemplazó el filtro de estado en Campaigns); los bloqueos de campo siguen en el formulario de cambio real. mock-backend/ y el API de Laravel."
+          }
+        },
+        {
+          "ex": {
+            "en": "Application shell: routing, sign-in and session, typed API client with one place for error handling, consistent loading, empty and error states",
+            "es": "Shell de la aplicación: rutas, inicio de sesión y sesión, cliente API tipado con un solo lugar para errores, estados loading, empty y error consistentes"
+          },
+          "status": "done",
+          "ev": {
+            "en": "src/app, src/shared/api/client.ts, Sanctum sign-in with roles. Every list and tab has loading, empty and error states.",
+            "es": "src/app, src/shared/api/client.ts, inicio de sesión con Sanctum y roles. Cada lista y pestaña tiene estados loading, empty y error."
+          }
+        },
+        {
+          "ex": {
+            "en": "Small design language: colour, spacing and type tokens and base components (button, table, form field, status badge) with their states",
+            "es": "Lenguaje de diseño pequeño: tokens de color, espaciado y tipografía y componentes base (botón, tabla, campo, badge de estado) con sus estados"
+          },
+          "status": "done",
+          "ev": {
+            "en": "tokens.json generates the CSS variables; 15 Ds* components (including DsTabs and DsAccordion) with stories per state, light and dark.",
+            "es": "tokens.json genera las variables CSS; 15 componentes Ds* (incluidos DsTabs y DsAccordion) con historias por estado, claro y oscuro."
+          }
+        },
+        {
+          "ex": {
+            "en": "Work through plan mode and permissions",
+            "es": "Practicar plan mode y permisos"
+          },
+          "status": "done",
+          "ev": {
+            "en": "Declared by you: done while building the project from your instructions.",
+            "es": "Declarado por usted: hecho al construir el proyecto con sus instrucciones."
+          }
+        },
+        {
+          "ex": {
+            "en": "CLAUDE.md with the conventions (tokens, states, partial failure, keyboard, one test per criterion, no v-html, no real accounts)",
+            "es": "CLAUDE.md con las convenciones (tokens, estados, fallo parcial, teclado, una prueba por criterio, sin v-html, sin cuentas reales)"
+          },
+          "status": "done",
+          "ev": {
+            "en": "CLAUDE.md, plus rules in .claude/rules/ (including UX and information design) and the product map.",
+            "es": "CLAUDE.md, más reglas en .claude/rules/ (incluida la de UX y arquitectura de la información) y el mapa del producto."
+          }
+        },
+        {
+          "ex": {
+            "en": "Skill that turns a written screen spec into a component, its states, one test per criterion and one story per state",
+            "es": "Skill que convierte un spec de pantalla en componente, estados, una prueba por criterio y una historia por estado"
+          },
+          "status": "done",
+          "ev": {
+            "en": ".claude/skills/screen-from-spec; npm run traceability checks every criterion and state.",
+            "es": ".claude/skills/screen-from-spec; npm run traceability comprueba cada criterio y estado."
+          }
+        },
+        {
+          "ex": {
+            "en": "Write the acceptance criteria yourself before running the skill",
+            "es": "Escribir usted mismo los criterios de aceptación antes de correr el skill"
+          },
+          "status": "blocked",
+          "ev": {
+            "en": "Pending: there are no tickets yet. The specs in docs/specs/ (47 criteria) are illustrative drafts, not ticket criteria.",
+            "es": "Pendiente: aún no hay tickets. Los specs en docs/specs/ (47 criterios) son borradores ilustrativos, no criterios de un ticket."
+          }
+        },
+        {
+          "ex": {
+            "en": "Run the skill on two specs: a 300-item bulk change with preview, held items, one approval and 12 retryable failures; a template field kept within 30 characters after placeholders are filled",
+            "es": "Correr el skill en dos specs: un cambio masivo de 300 con preview, retenidos, una aprobación y 12 fallos reintentables; un campo de plantilla de 30 caracteres tras rellenar placeholders"
+          },
+          "status": "done",
+          "ev": {
+            "en": "Bulk budget change and Ad copy on Campaigns, built by the skill's procedure. The live run of /screen-from-spec on a new mockup is rehearsed in prompts/01.",
+            "es": "Cambio masivo de presupuesto y Ad copy en Campaigns, construidos con el procedimiento del skill. La ejecución en vivo de /screen-from-spec sobre un mockup nuevo se ensaya en prompts/01."
+          }
+        },
+        {
+          "ex": {
+            "en": "Optional: a list of 2,000 rows with filters, sorting and a status column that stays fast, with inline editing that can be rejected as locked",
+            "es": "Opcional: lista de 2.000 filas con filtros, orden y columna de estado rápida, con edición en línea que puede rechazarse como bloqueada"
+          },
+          "status": "changed",
+          "ev": {
+            "en": "Removed on your decision. Campaigns now has a status filter (Active, Paused, Limited, Ended) with counts; performance is covered by the bundle budget and the DevTools audit.",
+            "es": "Quitada por su decisión. Campaigns ahora tiene filtro de estado (Active, Paused, Limited, Ended) con conteos; el rendimiento se cubre con el presupuesto de bundle y la auditoría de DevTools."
+          }
+        },
+        {
+          "ex": {
+            "en": "Review everything it generated and start the review log",
+            "es": "Revisar todo lo generado y empezar el log de revisión"
+          },
+          "status": "done",
+          "ev": {
+            "en": "docs/learning-plan/REVIEW_LOG.md, with findings from independent reviewer runs.",
+            "es": "docs/learning-plan/REVIEW_LOG.md, con hallazgos de ejecuciones de revisores independientes."
+          }
+        },
+        {
+          "ex": {
+            "en": "Attend the Gorilla Logic Construct walkthrough",
+            "es": "Asistir al walkthrough de Gorilla Logic Construct"
+          },
+          "status": "blocked",
+          "ev": {
+            "en": "Pending: you do not have access to Construct yet.",
+            "es": "Pendiente: aún no tiene acceso a Construct."
+          }
+        }
+      ]
+    },
+    {
+      "week": {
+        "en": "Week 2 (Oct 26 to 30): subagents",
+        "es": "Semana 2 (26 al 30 de oct.): subagentes"
+      },
+      "items": [
+        {
+          "ex": {
+            "en": "Build a read-only reviewer subagent that checks a screen against the design language, accessibility and the acceptance criteria",
+            "es": "Construir un subagente revisor de solo lectura que revise una pantalla contra el lenguaje de diseño, la accesibilidad y los criterios"
+          },
+          "status": "done",
+          "ev": {
+            "en": "screen-reviewer, plus frontend-code-reviewer, backend-code-reviewer (one per stack), a11y-reviewer and write-path-guardian. All read-only.",
+            "es": "screen-reviewer, más frontend-code-reviewer, backend-code-reviewer (uno por stack), a11y-reviewer y write-path-guardian. Todos de solo lectura."
+          }
+        },
+        {
+          "ex": {
+            "en": "Plant five weak screens on purpose",
+            "es": "Plantar cinco pantallas débiles a propósito"
+          },
+          "status": "done",
+          "ev": {
+            "en": "frontend/review-fixtures/weak-screens/: hard-coded styles, no error state, v-html, loads all rows and filters in the browser, drops failed items.",
+            "es": "frontend/review-fixtures/weak-screens/: estilos fijos, sin estado de error, v-html, carga todas las filas y filtra en el navegador, descarta los elementos fallidos."
+          }
+        },
+        {
+          "ex": {
+            "en": "Tune the reviewer until it catches all five and log what you changed",
+            "es": "Ajustar el revisor hasta que atrape las cinco y registrar los cambios"
+          },
+          "status": "done",
+          "ev": {
+            "en": "The reviewer judged all five FAIL naming each planted defect; npm run review:fixtures catches 5 of 5 by script. Logged.",
+            "es": "El revisor dio FAIL a las cinco nombrando cada defecto; npm run review:fixtures atrapa 5 de 5 por script. Registrado."
+          }
+        },
+        {
+          "ex": {
+            "en": "Optional: a fourth spec (compliance administration or UTM) generated with the skill and checked by the reviewer",
+            "es": "Opcional: un cuarto spec (administración de cumplimiento o UTM) generado con el skill y revisado por el revisor"
+          },
+          "status": "notdone",
+          "ev": {
+            "en": "Not built. The OEM compliance mockup and the prompt to build it live are ready in prompts/10. The Admin page already lists OEM rulebooks with effective dates.",
+            "es": "No construido. El mockup de cumplimiento OEM y el prompt para construirlo en vivo están listos en prompts/10. La página Admin ya lista los rulebooks OEM con fechas efectivas."
+          }
+        },
+        {
+          "ex": {
+            "en": "Automated accessibility checks with axe in component tests, and a keyboard-only pass by hand on each screen",
+            "es": "Pruebas automáticas de accesibilidad con axe en las pruebas de componente, y una pasada solo con teclado a mano en cada pantalla"
+          },
+          "status": "partial",
+          "ev": {
+            "en": "axe runs in unit tests, Storybook and Playwright, and the DevTools accessibility tree and Lighthouse run on 10 pages. Keyboard flows are automated in Playwright. The hand pass is yours.",
+            "es": "axe corre en pruebas unitarias, Storybook y Playwright, y el árbol de accesibilidad de DevTools y Lighthouse corren en 10 páginas. Los flujos de teclado están automatizados en Playwright. La pasada a mano es suya."
+          }
+        },
+        {
+          "ex": {
+            "en": "Make generation and review one repeatable step: the skill generates the screen, then asks the reviewer",
+            "es": "Hacer de la generación y la revisión un solo paso repetible: el skill genera la pantalla y luego llama al revisor"
+          },
+          "status": "done",
+          "ev": {
+            "en": "Steps 9 and 10 of screen-from-spec call the reviewer and the log.",
+            "es": "Los pasos 9 y 10 de screen-from-spec llaman al revisor y al log."
+          }
+        },
+        {
+          "ex": {
+            "en": "Optional: compare each state's Storybook story against the design language and log drift",
+            "es": "Opcional: comparar la historia de cada estado contra el lenguaje de diseño y registrar desvíos"
+          },
+          "status": "notdone",
+          "ev": {
+            "en": "Not done.",
+            "es": "No hecho."
+          }
+        },
+        {
+          "ex": {
+            "en": "A 15-minute usability check with a colleague on the bulk-approval screen",
+            "es": "Chequeo de usabilidad de 15 minutos con un colega en la pantalla de aprobación masiva"
+          },
+          "status": "you",
+          "ev": {
+            "en": "Needs a person. Script and table in docs/learning-plan/USABILITY_CHECK.md.",
+            "es": "Necesita a una persona. Guion y tabla en docs/learning-plan/USABILITY_CHECK.md."
+          }
+        }
+      ]
+    },
+    {
+      "week": {
+        "en": "Week 3 (Nov 2 to 6): hooks, MCP and plugins",
+        "es": "Semana 3 (2 al 6 de nov.): hooks, MCP y plugins"
+      },
+      "items": [
+        {
+          "ex": {
+            "en": "Hook that runs lint (with the Vue accessibility rules), the type check and the affected tests after every component edit",
+            "es": "Hook que corre lint (con reglas de accesibilidad de Vue), el type check y las pruebas afectadas tras cada edición de componente"
+          },
+          "status": "done",
+          "ev": {
+            "en": "format.mjs (Prettier, ESLint) and verify.mjs (vue-tsc, vitest related, screen check); proven by tools/hooks.spec.ts.",
+            "es": "format.mjs (Prettier, ESLint) y verify.mjs (vue-tsc, vitest related, screen check); probado en tools/hooks.spec.ts."
+          }
+        },
+        {
+          "ex": {
+            "en": "Hook that blocks edits to environment and secrets files",
+            "es": "Hook que bloquea ediciones a archivos de entorno y secretos"
+          },
+          "status": "done",
+          "ev": {
+            "en": "guard-files.mjs blocks .env, keys, certificates, credentials and lockfiles; guard-bash.mjs blocks destructive database commands.",
+            "es": "guard-files.mjs bloquea .env, claves, certificados, credenciales y lockfiles; guard-bash.mjs bloquea comandos destructivos de base de datos."
+          }
+        },
+        {
+          "ex": {
+            "en": "Connect the Playwright MCP, walk the screens and draft end-to-end tests with axe, then check each locator by hand and log what you rejected",
+            "es": "Conectar el MCP de Playwright, recorrer las pantallas y redactar pruebas e2e con axe, y revisar cada localizador a mano registrando lo rechazado"
+          },
+          "status": "partial",
+          "ev": {
+            "en": "Playwright and Chrome DevTools MCP servers are in .mcp.json (pinned, free) and pre-approved in .claude/settings.json. The 112 end-to-end tests were written as Playwright code, not drafted through the MCP. The live walk is in prompts/08.",
+            "es": "Los servidores MCP de Playwright y Chrome DevTools están en .mcp.json (fijados, gratuitos) y preaprobados en .claude/settings.json. Las 112 pruebas e2e se escribieron como código de Playwright, no se redactaron con el MCP. El recorrido en vivo está en prompts/08."
+          }
+        },
+        {
+          "ex": {
+            "en": "A 2,000-row list with a performance budget (Lighthouse CI or a timing test) that fails the build",
+            "es": "Lista de 2.000 filas con presupuesto de rendimiento (Lighthouse CI o prueba de tiempos) que rompa el build"
+          },
+          "status": "changed",
+          "ev": {
+            "en": "The list was removed on your decision. The budget remains: npm run budget fails when initial JavaScript exceeds 100 kB gzip, and npm run audit:devtools fails below accessibility 100, best practices 95, LCP 2.5 s or CLS 0.1.",
+            "es": "La lista se quitó por su decisión. El presupuesto se mantiene: npm run budget falla si el JavaScript inicial supera 100 kB gzip y npm run audit:devtools falla por debajo de accesibilidad 100, buenas prácticas 95, LCP 2,5 s o CLS 0,1."
+          }
+        },
+        {
+          "ex": {
+            "en": "Optional: point one screen at a small Laravel endpoint that returns a partial result",
+            "es": "Opcional: apuntar una pantalla a un endpoint de Laravel pequeño que devuelva un resultado parcial"
+          },
+          "status": "notdone",
+          "ev": {
+            "en": "Not done: the batch screens run on the mock. The rest of the app runs on the real Laravel API (accounts, campaigns, approvals, changelog, simulated campaigns with edit and delete).",
+            "es": "No hecho: las pantallas de lote corren sobre el mock. El resto de la app corre sobre el API real de Laravel (cuentas, campañas, aprobaciones, changelog, campañas simuladas con edición y borrado)."
+          }
+        },
+        {
+          "ex": {
+            "en": "Package the skill, the reviewer and the hooks as a personal plugin, install it in a clean sandbox, and move the conventions into a skill",
+            "es": "Empaquetar el skill, el revisor y los hooks como plugin personal, instalarlo en un sandbox limpio y mover las convenciones a un skill"
+          },
+          "status": "done",
+          "ev": {
+            "en": "plugins/stream-frontend-kit v0.2.0: 6 skills, 3 reviewer agents, 2 hooks and 2 MCP servers; the conventions travel as skills generated from the rules. Validated in strict mode and installed into an empty configuration.",
+            "es": "plugins/stream-frontend-kit v0.2.0: 6 skills, 3 agentes revisores, 2 hooks y 2 servidores MCP; las convenciones viajan como skills generados desde las reglas. Validado en modo estricto e instalado en una configuración vacía."
+          }
+        },
+        {
+          "ex": {
+            "en": "Run lint, types, unit tests, Playwright with axe and the performance budget in a CI pipeline",
+            "es": "Correr lint, tipos, pruebas unitarias, Playwright con axe y el presupuesto de rendimiento en un pipeline de CI"
+          },
+          "status": "out",
+          "ev": {
+            "en": "Out of scope by your decision: this demo app keeps no CI pipeline. Everything runs locally with npm run check, npm run e2e, npm run budget and npm run audit:devtools.",
+            "es": "Fuera de alcance por su decisión: esta app demo no mantiene pipeline de CI. Todo corre en local con npm run check, npm run e2e, npm run budget y npm run audit:devtools."
+          }
+        },
+        {
+          "ex": {
+            "en": "Write a one-page summary of your setup",
+            "es": "Escribir un resumen de una página del setup"
+          },
+          "status": "done",
+          "ev": {
+            "en": "docs/learning-plan/SETUP_SUMMARY.md, and docs/PRODUCT_OVERVIEW.md for the product itself.",
+            "es": "docs/learning-plan/SETUP_SUMMARY.md, y docs/PRODUCT_OVERVIEW.md para el producto."
+          }
+        }
+      ]
+    },
+    {
+      "week": {
+        "en": "Throughout: reviewing AI output",
+        "es": "Durante todo el ejercicio: revisar la salida de la IA"
+      },
+      "items": [
+        {
+          "ex": {
+            "en": "Design-language conformance: only tokens and base components",
+            "es": "Conformidad con el lenguaje de diseño: solo tokens y componentes base"
+          },
+          "status": "done",
+          "ev": {
+            "en": "screen-lint, the screen reviewer and ESLint; nothing hard-coded in the screens.",
+            "es": "screen-lint, el revisor de pantallas y ESLint; nada fijo en las pantallas."
+          }
+        },
+        {
+          "ex": {
+            "en": "Seeded defects: break a component on purpose and confirm a test or the reviewer fails",
+            "es": "Defectos sembrados: romper un componente a propósito y confirmar que una prueba o el revisor falla"
+          },
+          "status": "done",
+          "ev": {
+            "en": "Four guards removed on purpose, each made its tests fail; restored. Logged.",
+            "es": "Se quitaron cuatro salvaguardas a propósito; cada una hizo fallar sus pruebas; restauradas. Registrado."
+          }
+        },
+        {
+          "ex": {
+            "en": "Accessibility: axe on every component and flow, plus a keyboard-only pass by hand",
+            "es": "Accesibilidad: axe en cada componente y flujo, más una pasada solo con teclado a mano"
+          },
+          "status": "partial",
+          "ev": {
+            "en": "axe in both themes and at 320 px on every page; DevTools audit scores 100. The hand pass is yours.",
+            "es": "axe en ambos temas y a 320 px en cada página; la auditoría de DevTools da 100. La pasada a mano es suya."
+          }
+        },
+        {
+          "ex": {
+            "en": "States and traceability: every criterion maps to one test, every state to one story",
+            "es": "Estados y trazabilidad: cada criterio a una prueba, cada estado a una historia"
+          },
+          "status": "done",
+          "ev": {
+            "en": "npm run traceability: 47 criteria and 17 states covered.",
+            "es": "npm run traceability: 47 criterios y 17 estados cubiertos."
+          }
+        },
+        {
+          "ex": {
+            "en": "Security: no v-html with user text, no secrets in the bundle, nothing trusted unread",
+            "es": "Seguridad: sin v-html con texto del usuario, sin secretos en el bundle, nada confiado sin leer"
+          },
+          "status": "done",
+          "ev": {
+            "en": "vue/no-v-html is an error; plain-text tests; the secrets hook; independent reviewers.",
+            "es": "vue/no-v-html es un error; pruebas de texto plano; el hook de secretos; revisores independientes."
+          }
+        },
+        {
+          "ex": {
+            "en": "A review log with at least one rejected or corrected artifact each week",
+            "es": "Un log de revisión con al menos un artefacto rechazado o corregido cada semana"
+          },
+          "status": "partial",
+          "ev": {
+            "en": "The log has the corrections and the independent reviews so far. Add entries as weeks 2 and 3 happen.",
+            "es": "El log tiene las correcciones y revisiones independientes hasta ahora. Agregue entradas cuando ocurran las semanas 2 y 3."
+          }
+        }
+      ]
+    },
+    {
+      "week": {
+        "en": "Added after the plan (your requests)",
+        "es": "Agregado después del plan (sus pedidos)"
+      },
+      "items": [
+        {
+          "ex": {
+            "en": "Flows from the AdVise screenshots and the MVP criteria",
+            "es": "Flujos de las capturas de AdVise y de los criterios del MVP"
+          },
+          "status": "done",
+          "ev": {
+            "en": "Launch per account (OEM rulebook, the account's own Salesforce budget, held items with reasons, one approval, partial failure, receipts), approvals in Campaigns, status filter.",
+            "es": "Lanzamiento por cuenta (rulebook OEM, presupuesto propio de Salesforce de la cuenta, retenidos con razones, una aprobación, fallo parcial, recibos), aprobaciones en Campaigns, filtro de estado."
+          }
+        },
+        {
+          "ex": {
+            "en": "Accounts with their own page and monthly budget; campaigns show their account",
+            "es": "Cuentas con su propia página y presupuesto mensual; las campañas muestran su cuenta"
+          },
+          "status": "done",
+          "ev": {
+            "en": "/accounts and /accounts/:id (Campaigns, Launch, Changelog), Laravel accounts API with tests, account links on Campaigns.",
+            "es": "/accounts y /accounts/:id (Campaigns, Launch, Changelog), API de cuentas en Laravel con pruebas, enlaces a la cuenta en Campaigns."
+          }
+        },
+        {
+          "ex": {
+            "en": "Sandbox merged into Campaigns with full CRUD for simulated campaigns",
+            "es": "Sandbox unido a Campaigns con CRUD completo para campañas simuladas"
+          },
+          "status": "done",
+          "ev": {
+            "en": "A tab per provider, Source column, create, edit and delete; Laravel PATCH and DELETE with tests.",
+            "es": "Una pestaña por proveedor, columna Source, crear, editar y borrar; PATCH y DELETE en Laravel con pruebas."
+          }
+        },
+        {
+          "ex": {
+            "en": "Approvals as a table with approve and reject icons, inside Campaigns",
+            "es": "Aprobaciones como tabla con iconos de aprobar y rechazar, dentro de Campaigns"
+          },
+          "status": "done",
+          "ev": {
+            "en": "Approvals tab with the pending count in its label; the old address redirects.",
+            "es": "Pestaña Approvals con el conteo de pendientes en su etiqueta; la dirección vieja redirige."
+          }
+        },
+        {
+          "ex": {
+            "en": "Emergency stop moved out of the header into an Admin page (admins only) with the OEM rulebooks",
+            "es": "Parada de emergencia movida del encabezado a una página Admin (solo admins) con los rulebooks OEM"
+          },
+          "status": "done",
+          "ev": {
+            "en": "/admin with Emergency stop and OEM rulebooks tabs; the banner stays visible to everyone while writes are stopped.",
+            "es": "/admin con pestañas Emergency stop y OEM rulebooks; el banner sigue visible para todos mientras las escrituras están detenidas."
+          }
+        },
+        {
+          "ex": {
+            "en": "UX and information design rule; tabs and accordions instead of stacked content",
+            "es": "Regla de UX y arquitectura de la información; pestañas y acordeones en lugar de contenido apilado"
+          },
+          "status": "done",
+          "ev": {
+            "en": ".claude/rules/ux-information-design.md, docs/standards/ux.md, DsTabs and DsAccordion, tab in the URL.",
+            "es": ".claude/rules/ux-information-design.md, docs/standards/ux.md, DsTabs y DsAccordion, pestaña en la URL."
+          }
+        },
+        {
+          "ex": {
+            "en": "Reviewers split by stack; skills, rules, agents and commands updated; Codex mirror generated",
+            "es": "Revisores separados por stack; skills, reglas, agentes y comandos actualizados; espejo de Codex generado"
+          },
+          "status": "done",
+          "ev": {
+            "en": "frontend-code-reviewer and backend-code-reviewer; npm run sync:codex with a test that fails when the mirror is stale.",
+            "es": "frontend-code-reviewer y backend-code-reviewer; npm run sync:codex con una prueba que falla si el espejo está desactualizado."
+          }
+        },
+        {
+          "ex": {
+            "en": "Accessibility and performance through DevTools, and updated packages (Node 26, Pest 5)",
+            "es": "Accesibilidad y rendimiento con DevTools, y paquetes actualizados (Node 26, Pest 5)"
+          },
+          "status": "done",
+          "ev": {
+            "en": "npm run audit:devtools; TypeScript stays on 6.0 because typescript-eslint does not support 7 yet.",
+            "es": "npm run audit:devtools; TypeScript se queda en 6.0 porque typescript-eslint aún no soporta la 7."
+          }
+        },
+        {
+          "ex": {
+            "en": "Documentation: product overview with roles, page expectations and diagrams; demo prompts with mockups; repository on GitHub",
+            "es": "Documentación: visión del producto con roles, expectativas por página y diagramas; prompts de demo con mockups; repositorio en GitHub"
+          },
+          "status": "done",
+          "ev": {
+            "en": "docs/PRODUCT_OVERVIEW.md, prompts/, https://github.com/vanessaaristizabal-gl/demo-stream (semantic commits on main).",
+            "es": "docs/PRODUCT_OVERVIEW.md, prompts/, https://github.com/vanessaaristizabal-gl/demo-stream (commits semánticos en main)."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -11,7 +11,7 @@ cd .. && claude plugin validate plugins --strict                # validación es
 export CLAUDE_CONFIG_DIR=$(mktemp -d)
 claude plugin marketplace add ./plugins
 claude plugin install stream-frontend-kit@stream-local
-claude plugin details stream-frontend-kit@stream-local          # 2 skills, 1 agente, 2 hooks, 1 MCP
+claude plugin details stream-frontend-kit@stream-local          # 6 skills, 3 agentes revisores, 2 hooks, 2 MCP (Playwright y Chrome DevTools)
 unset CLAUDE_CONFIG_DIR
 ```
 ## Pruebas automáticas

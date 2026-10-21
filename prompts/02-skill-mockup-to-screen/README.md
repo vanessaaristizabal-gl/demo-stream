@@ -10,7 +10,7 @@ cd /Users/vanessa.aristizabal/Dev/stream && claude
 
 ## Prompt 1: redactar el spec (sin código todavía)
 ```text
-Read prompts/02-skill-mockup-to-screen/mockup.png. Draft a screen spec for it following docs/specs/README.md, saved as docs/specs/changelog-timeline.md with "Component: features/lab/components/ChangelogTimeline". List the states, testable acceptance criteria (AC-n), edge cases and what is out of scope. Do not write any code yet. Mark every criterion you are unsure about with a question for me.
+Read prompts/02-skill-mockup-to-screen/mockup.png. Draft a screen spec for it following docs/specs/README.md, saved as docs/specs/changelog-timeline.md with "Component: features/accounts/components/ChangelogTimeline". List the states, testable acceptance criteria (AC-n), edge cases and what is out of scope. Do not write any code yet. Mark every criterion you are unsure about with a question for me.
 ```
 **Aquí usted edita el spec en vivo** (agregue, quite o corrija 1 o 2 criterios): es el punto de la demo.
 
@@ -23,8 +23,11 @@ Use the shared DateText and the design-system tokens. Entries come from the chan
 ## Qué debería pasar
 Crea `ChangelogTimeline.vue/.spec.ts/.stories.ts`; los filtros (All, Rules, AdVisements, Manual) son un grupo accesible con teclado; cada entrada muestra actor, resumen, ruta y hora con `<DateText>`; estados loading, empty, error.
 
+## Opcional: cablearlo
+Pida "use ChangelogTimeline in the Changelog tab of the account page instead of the table (AccountChangelog), keeping its states". La pestaña carga el changelog de la cuenta (`/api/changelog?account_id=`), así que verá datos reales del backend sembrado.
+
 ## Comprobar
 ```bash
-cd /Users/vanessa.aristizabal/Dev/stream/frontend && npm run traceability && npx vitest run src/features/lab/components/ChangelogTimeline
+cd /Users/vanessa.aristizabal/Dev/stream/frontend && npm run traceability && npx vitest run src/features/accounts/components/ChangelogTimeline
 ```
 ## Limpiar: `./prompts/reset-demo.sh`

@@ -16,7 +16,7 @@ Use the screen-reviewer agent to review frontend/review-fixtures/weak-screens/05
 ```
 Repita con las otras cuatro cuando quiera (01 colores/espaciado, 02 sin estado de error, 03 `v-html`, 04 carga 2.000 filas):
 ```text
-Use the screen-reviewer agent to review each file in frontend/review-fixtures/weak-screens/ independently (specs: docs/specs/bulk-approval-preview.md for 01, 02 and 05; template-field.md for 03; dense-list.md for 04). One verdict per file. Do not read manifest.json.
+Use the screen-reviewer agent to review each file in frontend/review-fixtures/weak-screens/ independently (specs: docs/specs/bulk-approval-preview.md for 01, 02 and 05; template-field.md for 03; for 04 there is no spec: judge it against .claude/rules/ux-information-design.md and the design language, where lists are paged by the server). One verdict per file. Do not read manifest.json.
 ```
 
 ## Qué debería pasar
@@ -24,7 +24,7 @@ Veredicto **FAIL** en cada archivo, nombrando el defecto sembrado: 01 colores he
 
 ## Contraste: una pantalla buena
 ```text
-Use the screen-reviewer agent to review frontend/src/features/lab/components/DenseList.vue against docs/specs/dense-list.md.
+Use the screen-reviewer agent to review frontend/src/shared/components/BatchPreview.vue against docs/specs/bulk-approval-preview.md.
 ```
 Esperable: hallazgos menores o PASS WITH FIXES, no un FAIL gratuito (el agente no inventa).
 

@@ -9,13 +9,13 @@ Cada carpeta es un ejemplo independiente: qué demuestra, qué comandos correr a
 | `02-skill-mockup-to-screen` | Del mockup solamente: Claude redacta el spec, usted lo aprueba, luego genera | skill + revisión humana |
 | `03-agent-screen-reviewer` | Revisor de solo lectura que atrapa las 5 pantallas débiles | agente `screen-reviewer` |
 | `04-agent-a11y-reviewer` | Revisión WCAG 2.2 AA | agente `a11y-reviewer` |
-| `05-agent-code-reviewer` | Revisión independiente de un cambio | agente `code-reviewer` |
+| `05-agent-code-reviewer` | Revisión independiente por stack: TypeScript y Vue de un lado, PHP y Laravel del otro | agentes `frontend-code-reviewer` y `backend-code-reviewer` |
 | `06-agent-write-path-guardian` | Protección de la regla "un solo write path" | agente `write-path-guardian` |
 | `07-hooks` | Bloqueo de secretos y verificación tras cada edición | hooks |
-| `08-mcp-playwright` | Recorrer pantallas y redactar e2e | Playwright MCP |
+| `08-mcp-playwright` | Recorrer pantallas, redactar e2e, árbol de accesibilidad, Lighthouse y trazas | MCP de Playwright y de Chrome DevTools |
 | `09-plugin` | Todo empaquetado, instalado en una configuración limpia | plugin |
 | `10-mockup-compliance-rules` | Tercer mockup: reglas OEM con fechas efectivas y campañas que las rompen | skill |
-| `11-flow-deploy-wizard` | Flujo de AdVise (Library, Deploy wizard, receipts) sobre las APIs del lab | app |
+| `11-flow-account-launch` | Flujo de AdVise por cuenta: Launch, compliance OEM, presupuesto propio, fallo parcial, recibos; y aprobaciones en Campaigns | app |
 
 Orden sugerido para 30 minutos: 00, 11 (la app), 01 (skill), 03 (reviewer), 07 (hooks), 04 o 05 (otro agente), 09 (plugin). Los demás quedan de reserva.
 

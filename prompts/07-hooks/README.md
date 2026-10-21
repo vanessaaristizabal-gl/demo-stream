@@ -19,7 +19,7 @@ Esperable: el hook `verify` corre `vue-tsc` y falla con `Type 'string' is not as
 
 ## C. `v-html` bloqueado
 ```text
-Create frontend/src/features/lab/components/Scratch.vue that shows a user-typed ad copy with v-html.
+Create frontend/src/features/campaigns/components/Scratch.vue that shows a user-typed ad copy with v-html.
 ```
 Esperable: ESLint `vue/no-v-html` y `screen-lint [v-html]` fallan; Claude debe renderizar texto.
 
@@ -29,5 +29,5 @@ cd /Users/vanessa.aristizabal/Dev/stream/frontend && nvm use && npx vitest run t
 ```
 ## Limpiar
 ```bash
-cd /Users/vanessa.aristizabal/Dev/stream && git checkout -- backend frontend && git clean -fd frontend/src/features/lab/components/Scratch.vue certs 2>/dev/null; git status --short
+cd /Users/vanessa.aristizabal/Dev/stream && git checkout -- backend frontend && git clean -fd frontend/src/features/campaigns/components/Scratch.vue certs 2>/dev/null; git status --short
 ```
