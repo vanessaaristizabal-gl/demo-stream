@@ -9,5 +9,11 @@
     "maxFirstRowsMs": 2000,
     "maxFilterMs": 1000,
     "maxResponseKb": 60
+  },
+  "devtools": {
+    "accessibility": 100,
+    "bestPractices": 95,
+    "lcpMs": 2500,
+    "cls": 0.1
   }
 }
