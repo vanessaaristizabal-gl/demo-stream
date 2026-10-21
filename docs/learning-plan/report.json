@@ -77,8 +77,8 @@
           },
           "status": "changed",
           "ev": {
-            "en": "Kept: preview with held items and reasons, apply with retryable partial failure (including provider rate-limit failures), idempotency. The 2,000-row list and the inline locked-field edit were removed on your decision (the status filter on Campaigns replaced them); field locks remain in the real campaign change form. mock-backend/ and the Laravel API.",
-            "es": "Se conservan: preview con retenidos y razones, apply con fallo parcial reintentable (incluye fallos de límite de tasa del proveedor), idempotencia. La lista de 2.000 filas y la edición en línea con campo bloqueado se quitaron por su decisión (las reemplazó el filtro de estado en Campaigns); los bloqueos de campo siguen en el formulario de cambio real. mock-backend/ y el API de Laravel."
+            "en": "Kept: preview with held items and reasons, apply with retryable partial failure (including provider rate-limit failures), idempotency. The 2,000-row list and the inline locked-field edit were removed on your decision (the status filter on Campaigns replaced them); field locks remain in the real campaign change form. mock-backend/ and the Laravel API. The 2,000-row list, the locked-field edit and the rate limit are now written as acceptance criteria in tickets #1 and #2 to be built on the Laravel API with ticket-to-spec; not built yet.",
+            "es": "Se conservan: preview con retenidos y razones, apply con fallo parcial reintentable (incluye fallos de límite de tasa del proveedor), idempotencia. La lista de 2.000 filas y la edición en línea con campo bloqueado se quitaron por su decisión (las reemplazó el filtro de estado en Campaigns); los bloqueos de campo siguen en el formulario de cambio real. mock-backend/ y el API de Laravel. La lista de 2.000 filas, la edición con campo bloqueado y el límite de tasa quedaron escritos como criterios de aceptación en los tickets #1 y #2 para construirse en la API de Laravel con ticket-to-spec; aún no están construidos."
           }
         },
         {
@@ -132,8 +132,8 @@
           },
           "status": "done",
           "ev": {
-            "en": ".claude/skills/screen-from-spec; npm run traceability checks every criterion and state.",
-            "es": ".claude/skills/screen-from-spec; npm run traceability comprueba cada criterio y estado."
+            "en": ".claude/skills/screen-from-spec; npm run traceability checks every criterion and state. ticket-to-spec starts one step earlier: from a GitHub issue to the spec, then to the screen, the API or both.",
+            "es": ".claude/skills/screen-from-spec; npm run traceability comprueba cada criterio y estado. ticket-to-spec empieza un paso antes: de un issue de GitHub al spec, y luego a la pantalla, la API o ambas."
           }
         },
         {
@@ -143,8 +143,8 @@
           },
           "status": "blocked",
           "ev": {
-            "en": "Pending: there are no tickets yet. The specs in docs/specs/ (47 criteria) are illustrative drafts, not ticket criteria.",
-            "es": "Pendiente: aún no hay tickets. Los specs en docs/specs/ (47 criterios) son borradores ilustrativos, no criterios de un ticket."
+            "en": "Pending: the criteria still have to come from your product owner. Two example tickets with criteria (GitHub issues #1 Campaign Explorer, UI and API; #2 Bulk budget change API) were drafted to rehearse the flow, and the skill ticket-to-spec turns an issue into a spec and stops for your approval. The specs in docs/specs/ (47 criteria) remain illustrative drafts.",
+            "es": "Pendiente: los criterios aún deben venir de su product owner. Se redactaron dos tickets de ejemplo con criterios (issues #1 Campaign Explorer, UI y API; #2 API de cambio masivo de presupuesto) para ensayar el flujo, y el skill ticket-to-spec convierte un issue en spec y se detiene para su aprobación. Los specs en docs/specs/ (47 criterios) siguen siendo borradores ilustrativos."
           }
         },
         {
@@ -346,8 +346,8 @@
           },
           "status": "notdone",
           "ev": {
-            "en": "Not done: the batch screens run on the mock. The rest of the app runs on the real Laravel API (accounts, campaigns, approvals, changelog, simulated campaigns with edit and delete).",
-            "es": "No hecho: las pantallas de lote corren sobre el mock. El resto de la app corre sobre el API real de Laravel (cuentas, campañas, aprobaciones, changelog, campañas simuladas con edición y borrado)."
+            "en": "Not done: the batch screens run on the mock. The rest of the app runs on the real Laravel API (accounts, campaigns, approvals, changelog, simulated campaigns with edit and delete). Ticket #2 specifies the Laravel bulk budget endpoints (preview, apply with partial failure, retry); the screen keeps the mock until that is built.",
+            "es": "No hecho: las pantallas de lote corren sobre el mock. El resto de la app corre sobre el API real de Laravel (cuentas, campañas, aprobaciones, changelog, campañas simuladas con edición y borrado). El ticket #2 especifica los endpoints de Laravel del cambio masivo (preview, aplicación con fallo parcial, reintento); la pantalla sigue con el mock hasta que se construya."
           }
         },
         {

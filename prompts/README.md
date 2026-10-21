@@ -16,6 +16,7 @@ Cada carpeta es un ejemplo independiente: qué demuestra, qué comandos correr a
 | `09-plugin` | Todo empaquetado, instalado en una configuración limpia | plugin |
 | `10-mockup-compliance-rules` | Tercer mockup: reglas OEM con fechas efectivas y campañas que las rompen | skill |
 | `11-flow-account-launch` | Flujo de AdVise por cuenta: Launch, compliance OEM, presupuesto propio, fallo parcial, recibos; y aprobaciones en Campaigns | app |
+| `12-skill-ticket-to-spec` | De un ticket de GitHub a spec, y de spec a API, pantalla o ambos | skill `ticket-to-spec` |
 
 Orden sugerido para 30 minutos: 00, 11 (la app), 01 (skill), 03 (reviewer), 07 (hooks), 04 o 05 (otro agente), 09 (plugin). Los demás quedan de reserva.
 
