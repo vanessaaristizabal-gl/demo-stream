@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CampaignController;
@@ -13,6 +14,9 @@ Route::post('login', [AuthController::class, 'login'])->middleware('throttle:10,
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('me', [AuthController::class, 'me']);
     Route::post('logout', [AuthController::class, 'logout']);
+
+    Route::get('accounts', [AccountController::class, 'index']);
+    Route::get('accounts/{adAccount}', [AccountController::class, 'show']);
 
     Route::get('campaigns', [CampaignController::class, 'index']);
     Route::get('campaigns/{campaign}', [CampaignController::class, 'show']);

@@ -18,6 +18,7 @@ class AdAccountFactory extends Factory
             'external_id' => (string) fake()->unique()->numerify('##########'),
             'dealer_name' => fake()->company().' Motors',
             'manufacturer' => 'toyota',
+            'monthly_budget' => 500_000,
         ];
     }
 }

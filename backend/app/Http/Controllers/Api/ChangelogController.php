@@ -27,6 +27,10 @@ class ChangelogController extends Controller
             $query->where('campaign_id', $campaign);
         }
 
+        if ($account = $request->query('account_id')) {
+            $query->whereHas('campaign', fn ($campaigns) => $campaigns->where('ad_account_id', $account));
+        }
+
         return ChangelogEntryResource::collection($query->paginate(50))->response();
     }
 }

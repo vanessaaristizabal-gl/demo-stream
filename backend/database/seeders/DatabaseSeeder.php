@@ -52,6 +52,7 @@ class DatabaseSeeder extends Seeder
             $account = AdAccount::factory()->create([
                 'provider' => $i % 2 ? Provider::Google : Provider::Meta,
                 'dealer_name' => "Dealer {$i}",
+                'monthly_budget' => 300_000 + $i * 100_000,
             ]);
             foreach (array_slice(self::NAMES[$i - 1], 0, 3) as $name) {
                 Campaign::factory()->for($account, 'account')->create(['name' => $name, 'live' => ['name' => $name, 'type' => 'search', 'status' => 'active', 'daily_budget' => 10000], 'desired' => ['name' => $name, 'type' => 'search', 'status' => 'active', 'daily_budget' => 10000]]);
@@ -66,6 +67,7 @@ class DatabaseSeeder extends Seeder
         $sandbox->create(['platform' => 'google', 'name' => 'Camry - Search leads', 'goal' => 'leads', 'daily_budget' => 15000, 'vehicle' => 'Camry', 'location' => 'Austin', 'landing_url' => 'https://dealer.example.com/camry'], 'seed-google-camry', null);
         $sandbox->create(['platform' => 'meta', 'name' => 'RAV4 - Local awareness', 'goal' => 'awareness', 'daily_budget' => 9000, 'vehicle' => 'RAV4', 'location' => 'Dallas', 'landing_url' => 'https://dealer.example.com/rav4'], 'seed-meta-rav4', null);
 
+        $this->call(DemoAccountsSeeder::class);
         $this->call(DemoActivitySeeder::class);
     }
 }

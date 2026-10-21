@@ -28,6 +28,7 @@ class CampaignResource extends JsonResource
                 'external_id' => $this->account->external_id,
                 'dealer_name' => $this->account->dealer_name,
                 'manufacturer' => $this->account->manufacturer,
+                'monthly_budget' => $this->account->monthly_budget,
             ]),
         ];
     }

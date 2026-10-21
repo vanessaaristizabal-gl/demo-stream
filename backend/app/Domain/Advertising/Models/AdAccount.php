@@ -16,9 +16,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $external_id
  * @property string $dealer_name
  * @property string|null $manufacturer
+ * @property int|null $monthly_budget Integer cents; the account's own monthly budget (null = none yet)
  */
 #[UseFactory(AdAccountFactory::class)]
-#[Fillable(['provider', 'external_id', 'dealer_name', 'manufacturer'])]
+#[Fillable(['provider', 'external_id', 'dealer_name', 'manufacturer', 'monthly_budget'])]
 class AdAccount extends Model
 {
     use HasFactory;
