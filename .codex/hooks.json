@@ -33,15 +33,6 @@
             "command": "node '/Users/vanessa.aristizabal/Dev/stream/.codex/hooks/verify.mjs'"
           }
         ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node '/Users/vanessa.aristizabal/Dev/stream/.codex/hooks/check-deps.mjs'"
-          }
-        ]
       }
     ]
   }

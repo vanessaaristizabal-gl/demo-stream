@@ -1,0 +1,13 @@
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = [
+    "chrome-devtools-mcp@1.11.0",
+    "--isolated",
+    "--no-performance-crux",
+    "--no-usage-statistics",
+    "--no-file-navigations",
+]
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["@playwright/mcp@0.0.83"]

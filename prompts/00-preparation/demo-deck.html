@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stream demo deck</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --surface: #ffffff; --text: #14181f; --muted: #4a5361;
+    --border: #d5d9e0; --accent: #1f4fd8; --accent-soft: #e4ebff; --on-accent: #ffffff;
+    --ok: #17663a; --warn: #8a4b00; --stop: #a3201c;
+    --radius: 12px; --gap: 24px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1116; --surface: #171b22; --text: #eef1f5; --muted: #a9b2c0;
+      --border: #2d3441; --accent: #8fb0ff; --accent-soft: #1d2a4d; --on-accent: #0e1116;
+      --ok: #6fd69a; --warn: #f0b765; --stop: #ff9a94;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1116; --surface: #171b22; --text: #eef1f5; --muted: #a9b2c0;
+    --border: #2d3441; --accent: #8fb0ff; --accent-soft: #1d2a4d; --on-accent: #0e1116;
+    --ok: #6fd69a; --warn: #f0b765; --stop: #ff9a94;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { background: var(--bg); color: var(--text); font: 18px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; display: flex; flex-direction: column; }
+  a { color: var(--accent); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .skip { position: absolute; left: 16px; top: -60px; background: var(--accent); color: var(--on-accent); padding: 8px 14px; border-radius: 8px; z-index: 10; }
+  .skip:focus { top: 8px; }
+
+  main { flex: 1; position: relative; overflow: hidden; }
+  .slide { position: absolute; inset: 0; padding: clamp(16px, 4vw, 56px) clamp(16px, 6vw, 96px); display: none; overflow-y: auto; }
+  .slide.active { display: flex; flex-direction: column; justify-content: center; gap: var(--gap); }
+  .kicker { display: flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; margin: 0; }
+  h1 { font-size: clamp(2rem, 5.5vw, 3.8rem); line-height: 1.1; margin: 0; }
+  h2 { font-size: clamp(1.6rem, 3.6vw, 2.5rem); line-height: 1.15; margin: 0; }
+  h3 { font-size: 1.1rem; margin: 0 0 6px; }
+  p { margin: 0; }
+  .lead { font-size: clamp(1.1rem, 2vw, 1.4rem); color: var(--muted); max-width: 62ch; }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .card p { color: var(--muted); font-size: 0.95rem; }
+  .card .ico { color: var(--accent); margin-bottom: 8px; }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; counter-reset: s; }
+  .steps li { counter-increment: s; display: flex; gap: 14px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; }
+  .steps li::before { content: counter(s); flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-weight: 700; }
+  .steps small { color: var(--muted); display: block; font-size: 0.85rem; }
+  .pill { display: inline-block; border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; font-size: 0.8rem; color: var(--muted); }
+  .pill.ok { color: var(--ok); border-color: var(--ok); } .pill.warn { color: var(--warn); border-color: var(--warn); } .pill.stop { color: var(--stop); border-color: var(--stop); }
+  table { border-collapse: collapse; width: 100%; background: var(--surface); border-radius: var(--radius); overflow: hidden; font-size: 0.95rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { background: var(--accent-soft); }
+  code { font: 0.85em ui-monospace, Menlo, monospace; background: var(--accent-soft); padding: 1px 6px; border-radius: 6px; }
+  .quote { border-left: 4px solid var(--accent); padding: 4px 0 4px 18px; font-size: clamp(1.2rem, 2.4vw, 1.7rem); max-width: 60ch; }
+  .tree { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; font: 0.9rem/1.6 ui-monospace, Menlo, monospace; white-space: pre; overflow-x: auto; margin: 0; }
+
+  .moves { display: grid; gap: 14px; }
+  .move { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+  .move h3 { display: flex; align-items: center; gap: 10px; }
+  .move h3 .n { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-size: 0.9rem; }
+  .move p { color: var(--muted); font-size: 0.9rem; }
+  .prompt-box { position: relative; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 0.82rem; }
+  .prompt-box .tag { display: block; color: var(--accent); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .prompt-box pre { margin: 0 0 8px; white-space: pre-wrap; word-break: break-word; font: 0.82rem/1.5 ui-monospace, Menlo, monospace; }
+  .prompt-box .note { color: var(--muted); font-size: 0.8rem; margin: 0 0 8px; }
+  .copy { min-height: 36px; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 8px; font: inherit; font-size: 0.8rem; padding: 0 12px; cursor: pointer; }
+  .copy:hover { border-color: var(--accent); }
+  .none { color: var(--muted); font-size: 0.9rem; align-self: center; }
+  @media (max-width: 860px) { .move { grid-template-columns: 1fr; } }
+
+  nav { display: flex; align-items: center; gap: 12px; padding: 10px clamp(16px, 4vw, 40px); border-top: 1px solid var(--border); background: var(--surface); }
+  nav button { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; min-width: 44px; justify-content: center; border: 1px solid var(--border); background: var(--bg); color: var(--text); border-radius: 10px; font: inherit; cursor: pointer; padding: 0 12px; }
+  nav button:hover { border-color: var(--accent); }
+  nav button[disabled] { opacity: 0.45; cursor: default; }
+  .bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .bar > div { height: 100%; width: 0; background: var(--accent); transition: width 0.2s; }
+  .count { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 4.5ch; text-align: right; }
+  @media (prefers-reduced-motion: reduce) { .bar > div { transition: none; } }
+  @media (max-width: 480px) { nav .label { display: none; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#slides">Skip to the presentation</a>
+<main id="slides" tabindex="-1" aria-label="Stream presentation">
+
+<section class="slide" aria-label="The core rule">
+  <p class="kicker">The product rule</p>
+  <h2>One single door for writes</h2>
+  <p class="lead">A strategist proposes a change and the platform checks it. A second person must approve it, and only then is it written to the ad account. Pressing "Submit" never applies anything by itself.</p>
+  <ol class="steps">
+    <li><div>Request is submitted and resolved against live state<small>Compared with what is in the account now, not an old copy</small></div></li>
+    <li><div>Compliance<small>Checked against the versioned OEM rulebook</small></div></li>
+    <li><div>Approval: the human step<small>The request waits until a different person (four-eyes) or a pre-approved policy accepts it</small></div></li>
+    <li><div>Dry run<small>The provider validates without writing</small></div></li>
+    <li><div>Idempotent write<small>Every request carries its Idempotency-Key</small></div></li>
+    <li><div>Receipt in the changelog<small>Who, when, which rules, who approved</small></div></li>
+  </ol>
+</section>
+
+<section class="slide" aria-label="Roles">
+  <p class="kicker">Who uses it</p>
+  <h2>Three roles, enforced on the server</h2>
+  <table>
+    <thead><tr><th>Role</th><th>Can</th><th>Cannot</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Strategist</strong><br><code>strategist@example.com</code></td><td>Propose changes, create simulated campaigns, use the previews</td><td>Approve. See Admin</td></tr>
+      <tr><td><strong>Approver</strong><br><code>approver@example.com</code></td><td>Everything above, plus approve or reject</td><td>Approve their own request</td></tr>
+      <tr><td><strong>Admin</strong><br><code>admin@example.com</code></td><td>Everything above, plus the emergency stop and rulebooks</td><td>Bypass approval of their own change</td></tr>
+    </tbody>
+  </table>
+  <p class="lead">Demo password: <code>password</code>. The emergency stop blocks every write until an admin resumes them.</p>
+</section>
+
+<section class="slide" aria-label="Product pages">
+  <p class="kicker">The product</p>
+  <h2>Five places to work</h2>
+  <div class="grid">
+    <div class="card"><h3>Accounts</h3><p>Every dealer account with its own monthly budget. Account page with Campaigns, Launch and Changelog tabs.</p></div>
+    <div class="card"><h3>Campaigns</h3><p>One tab per provider, status filter, live and simulated rows, and an Approvals tab.</p></div>
+    <div class="card"><h3>Campaign</h3><p>A form with the live values. Submit for approval is enabled only when something changed.</p></div>
+    <div class="card"><h3>Changelog</h3><p>Every write made through Stream and every edit made directly in the provider, with author and approver.</p></div>
+    <div class="card"><h3>Admin</h3><p>Emergency stop and OEM rulebooks. Admins only.</p></div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Architecture">
+  <p class="kicker">Architecture</p>
+  <h2>A modular monolith with enforced boundaries</h2>
+  <div class="grid">
+    <div class="card"><h3>Backend</h3><p>Laravel 13, PHP 8.4, Pest. Domains: Identity, Advertising, Compliance, Governance, Changelog, Playbooks. Only Governance may use the write side of a provider, and an architecture test enforces it.</p></div>
+    <div class="card"><h3>Frontend</h3><p>Vue 3, TypeScript, Pinia. Own design system with tokens, Reka UI and Lucide, no UI kit. ESLint enforces who may import whom.</p></div>
+    <div class="card"><h3>Contract</h3><p>Every API change updates the tests, <code>openapi.json</code>, the frontend types and the e2e mock together.</p></div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Claude Code setup">
+  <p class="kicker">How it is set up for Claude Code</p>
+  <h2>The rules live in the repo, not in anyone's head</h2>
+  <pre class="tree">CLAUDE.md                  non-negotiable project rules
+.claude/
+  rules/        11 short constraints, loaded when matching files are touched
+  skills/       create-vue-component · create-pinia-store · add-laravel-endpoint
+                screen-from-spec · design-language
+  agents/       screen-reviewer · a11y-reviewer · frontend-code-reviewer
+                backend-code-reviewer · write-path-guardian   (read-only)
+  settings.json hooks: block secrets, format, types and tests after every edit
+.mcp.json       Playwright and Chrome DevTools
+plugins/        everything packaged as an installable plugin
+docs/           specs with acceptance criteria, ADRs, standards</pre>
+</section>
+
+<section class="slide" aria-label="Demo order">
+  <p class="kicker">What we will see</p>
+  <h2>The demo in four moves</h2>
+  <div class="moves">
+    <div class="move">
+      <div><h3><span class="n">1</span>The running app</h3><p>Accounts, Campaigns, approval, changelog, emergency stop.</p></div>
+      <p class="none">No prompt. Start with <code>npm run dev</code> and the backend, sign in as strategist, then approver.</p>
+    </div>
+    <div class="move">
+      <div><h3><span class="n">2</span>Spec-driven development</h3><p>A person writes the spec with testable acceptance criteria (<code>spec.md</code>, copied to <code>docs/specs/</code>). The <code>screen-from-spec</code> skill turns it into the component, one test per criterion (<code>AC-n</code>) and one story per state. Hooks fire on every edit.</p></div>
+      <div class="prompt-box">
+        <span class="tag">Before: terminal</span>
+        <p class="note"><code>cp prompts/01-skill-screen-from-spec/spec.md docs/specs/account-summary.md</code>, then launch <code>claude</code> from the repo root.</p>
+        <span class="tag">Prompt</span>
+        <pre>/screen-from-spec docs/specs/account-summary.md
+
+The visual reference is prompts/01-skill-screen-from-spec/mockup.png: read it. Build the component only with design-system tokens and Ds* components; the three pace states in the mockup are the three Storybook stories. Before you generate anything, explain in a few lines which props and events the criteria imply. When you finish, run the checks and ask the screen-reviewer agent to review it against the spec.</pre>
+        <button type="button" class="copy">Copy prompt</button>
+      </div>
+    </div>
+    <div class="move">
+      <div><h3><span class="n">3</span>Independent reviewer agents</h3><p>Read-only agents catch what the generator let through. Expect FAIL on every weak screen and a PASS on the write path.</p></div>
+      <div class="prompt-box">
+        <span class="tag">Prompt</span>
+        <pre>Run these in parallel and do not edit any file:
+1. screen-reviewer: review each file in frontend/review-fixtures/weak-screens/ independently, one verdict per file. Do not read manifest.json.
+2. write-path-guardian: audit backend/app/Domain/Governance and confirm GovernedWritePath is the only write path to a provider. Cite the architecture test that enforces it.
+3. a11y-reviewer: review frontend/src/features/accounts against WCAG 2.2 AA.
+Finish with a table: agent, what it reviewed, verdict, worst findings first.</pre>
+        <button type="button" class="copy">Copy prompt</button>
+      </div>
+    </div>
+    <div class="move">
+      <div><h3><span class="n">4</span>Hooks and plugin</h3><p>What must always happen happens on its own. The plugin packages the whole setup.</p></div>
+      <div class="prompt-box">
+        <span class="tag">Prompt: hook blocks secrets</span>
+        <pre>Add a line API_KEY=test to backend/.env and also create a file certs/server.pem with a placeholder.</pre>
+        <span class="tag">Prompt: hook checks types after an edit</span>
+        <pre>In frontend/src/shared/utils/format.ts add an exported const named brokenOnPurpose with the type number and the value 'text'. Do not fix it until the hook tells you.</pre>
+        <button type="button" class="copy">Copy both</button>
+        <p class="note" style="margin-top:8px">Plugin: no prompt, run <code>npm run plugin:build</code> in frontend/, then <code>claude plugin validate plugins --strict</code>. Clean up afterwards: <code>git checkout -- backend frontend</code>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav aria-label="Presentation navigation">
+  <button id="prev" type="button" aria-label="Previous slide"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg><span class="label">Previous</span></button>
+  <div class="bar" role="progressbar" aria-label="Progress" aria-valuemin="1" aria-valuemax="1" aria-valuenow="1"><div></div></div>
+  <span class="count" id="count" aria-live="polite">1 / 1</span>
+  <button id="next" type="button" aria-label="Next slide"><span class="label">Next</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+  <button id="theme" type="button" aria-label="Switch between light and dark theme"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-2.93 1.41-1.41m11.32-11.32 1.41-1.41M2 12h2m16 0h2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41"/></svg></button>
+</nav>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const prev = document.getElementById('prev'), next = document.getElementById('next');
+  const count = document.getElementById('count'), main = document.getElementById('slides');
+  const bar = document.querySelector('.bar'), fill = bar.firstElementChild;
+  let i = 0;
+  bar.setAttribute('aria-valuemax', slides.length);
+
+  function show(n, moveFocus) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === i));
+    count.textContent = (i + 1) + ' / ' + slides.length;
+    bar.setAttribute('aria-valuenow', i + 1);
+    fill.style.width = ((i + 1) / slides.length * 100) + '%';
+    prev.disabled = i === 0; next.disabled = i === slides.length - 1;
+    slides[i].scrollTop = 0;
+    if (moveFocus) main.focus({ preventScroll: true });
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch (e) {}
+  }
+  prev.addEventListener('click', () => show(i - 1, true));
+  next.addEventListener('click', () => show(i + 1, true));
+  document.addEventListener('keydown', (e) => {
+    if (e.target.closest('button, a')) { if (e.key === ' ' || e.key === 'Enter') return; }
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); show(i + 1); }
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); show(i - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); show(0); }
+    else if (e.key === 'End') { e.preventDefault(); show(slides.length - 1); }
+  });
+  document.getElementById('theme').addEventListener('click', () => {
+    const root = document.documentElement;
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+  });
+
+  document.querySelectorAll('.copy').forEach((b) => b.addEventListener('click', () => {
+    const text = [...b.parentElement.querySelectorAll('pre')].map((p) => p.textContent).join('\n\n');
+    const done = () => { const t = b.textContent; b.textContent = 'Copied'; setTimeout(() => { b.textContent = t; }, 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => {});
+  }));
+  show((parseInt(location.hash.slice(1), 10) || 1) - 1);
+</script>
+</body>
+</html>

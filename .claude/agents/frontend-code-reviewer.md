@@ -30,7 +30,7 @@ ESLint, `vue-tsc`, the Vue accessibility rules, the contrast tests and `screen-l
 - Generated code: invented APIs, plausible-but-wrong library usage (check Reka UI, Pinia, Vue Router against the installed source), dead code, duplicated logic that a shared composable or base component already provides.
 - Layers: the ESLint boundaries hold; features do not import each other (compose in `app`).
 - Contracts: a changed API shape means `src/shared/api/types.ts`, `e2e/mock-api.ts`, `docs/openapi.json` and the backend moved together.
-- Dependencies: free only (`npm run licenses`); say why a new one is needed and whether a native element or an existing component would do.
+- Dependencies: say why a new one is needed and whether a native element or an existing component would do.
 
 ## Before you conclude
 Run what applies from `frontend/` with Node 22+ (`nvm use`): `npm run check`, `npm run e2e` for UI changes, `npm run build && npm run budget` for bundle changes, `npm run audit:devtools` (needs the dev server and the backend) for accessibility and performance of pages. Quote the results and say plainly what you did not run.

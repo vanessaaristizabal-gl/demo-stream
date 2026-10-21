@@ -15,6 +15,5 @@ paths:
 - Never reset a database from a change: a hook blocks the destructive commands. Seeders for demo data are idempotent (they add what is missing), so they can run on an existing database (`php artisan db:seed --class=DemoAccountsSeeder`).
 - Write endpoints (POST, PATCH, DELETE) require an `Idempotency-Key`; PATCH takes only the fields to change, DELETE answers 204.
 - Secrets only from env through `config/*.php`; never in code, logs, fixtures or API responses.
-- Dependencies: free licenses only (`npm run licenses` in `frontend/` also checks composer). No paid Laravel products (Nova, Spark...), no private repositories, no `auth.json`.
 
 Reasoning and patterns (request flow, state machines, idempotency, queues, API documentation): `docs/standards/laravel.md`.

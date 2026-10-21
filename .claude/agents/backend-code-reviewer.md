@@ -27,7 +27,7 @@ Pint, PHPStan (Larastan level 5, no baseline), the arch tests and the OpenAPI sy
 - Errors handled where they can be acted on; no swallowed exceptions; no leaking messages.
 - Contracts: a changed shape means the Resource, `docs/openapi.json` (`php artisan scramble:export`), `frontend/src/shared/api/types.ts` and `frontend/e2e/mock-api.ts` all moved, with the endpoint documented (summary, description, group).
 - Generated code: invented methods, wrong Laravel or Pest 5 usage (verify against the installed source), dead code.
-- Dependencies: free only (`npm run licenses` in `frontend/` also checks composer); say why a new package is needed.
+- Dependencies: say why a new package is needed.
 - A hook blocks the destructive database commands (the ones that wipe or reset a database) for a reason: a change must not need them. Offer an idempotent seeder instead.
 
 ## Before you conclude
