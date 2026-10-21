@@ -26,6 +26,6 @@ test('the changelog shows date and time, and approvals show when a change was re
   await page.goto('/changelog')
   await expect(page.getByRole('row', { name: /Spring Camry/ })).toContainText('Oct 15, 2026, 9:00 AM')
 
-  await page.goto('/approvals')
-  await expect(page.getByRole('article', { name: 'Change request 7' })).toContainText('Oct 15, 2026, 10:00 AM')
+  await page.goto('/campaigns?tab=approvals')
+  await expect(page.getByRole('row', { name: /Spring Camry/ })).toContainText('Oct 15, 2026, 10:00 AM')
 })

@@ -140,8 +140,47 @@ export async function mockApi(
     locks,
     created_at: '2026-10-01T14:30:00+00:00',
     live: { name: 'Spring Camry', status: 'active', daily_budget: 10000 },
-    account: { id: 1, provider: 'google', external_id: '999', dealer_name: 'Acme Motors', manufacturer: 'toyota' },
+    account: { id: 1, provider: 'google', external_id: '999', dealer_name: 'Acme Motors', manufacturer: 'toyota', monthly_budget: 555000 },
   }
+  // Every provider state the campaigns filter offers: active, paused, limited by budget, ended.
+  const limited = {
+    ...campaign,
+    id: 2,
+    name: 'Brand - Search',
+    status: 'limited',
+    live: { name: 'Brand - Search', status: 'limited', daily_budget: 8000 },
+  }
+  const ended = {
+    ...campaign,
+    id: 3,
+    name: 'Fall clearance 2025',
+    status: 'ended',
+    live: { name: 'Fall clearance 2025', status: 'ended', daily_budget: 5000 },
+    account: { id: 2, provider: 'meta', external_id: '777', dealer_name: 'Best Meta Motors', manufacturer: null, monthly_budget: null },
+  }
+  const liveCampaigns = [campaign, limited, ended]
+  const accounts = [
+    {
+      id: 1,
+      provider: 'google',
+      external_id: '999',
+      dealer_name: 'Acme Motors',
+      manufacturer: 'toyota',
+      monthly_budget: 555000,
+      campaigns_count: 2,
+      created_at: '2026-10-01T14:30:00+00:00',
+    },
+    {
+      id: 2,
+      provider: 'meta',
+      external_id: '777',
+      dealer_name: 'Best Meta Motors',
+      manufacturer: null,
+      monthly_budget: null,
+      campaigns_count: 1,
+      created_at: '2026-10-02T09:00:00+00:00',
+    },
+  ]
   const request = {
     id: 7,
     campaign_id: 1,
@@ -169,17 +208,44 @@ export async function mockApi(
       const path = new URL(req.url()).pathname.replace('/api', '')
       const method = req.method()
 
-      if (path.startsWith('/lab/')) return route.fallback() // the practice lab has its own mock, served by Vite (lab-api/)
+      if (path.startsWith('/playbooks/')) return route.fallback() // bulk operations and launches have their own mock, served by Vite (mock-backend/)
       if (path === '/login') return json(route, { token: 'test-token', user })
       if (path === '/me') return json(route, user)
       if (path === '/logout') return route.fulfill({ status: 204 })
+      if (path === '/rulebooks') {
+        return json(route, [
+          {
+            id: 1,
+            manufacturer: 'toyota',
+            version: 1,
+            effective_from: '2026-01-01T00:00:00.000000Z',
+            effective_to: null,
+            rules: [
+              { id: 'TOY-001', field: 'daily_budget', operator: 'max', value: 50000, message: 'Daily budget cannot exceed $500.' },
+              { id: 'TOY-002', field: 'name', operator: 'required', message: 'Campaign name is required.' },
+            ],
+          },
+        ])
+      }
       if (path === '/emergency-stop') {
         if (method === 'POST' && stopError) return json(route, { message: 'The server could not be reached.' }, 500)
         if (method === 'POST') emergencyStop = JSON.parse(req.postData() ?? '{}').active
         return json(route, { active: emergencyStop })
       }
-      if (path === '/campaigns') return json(route, { data: [campaign], meta: { current_page: 1, last_page: 1, total: 1 } })
-      if (path === '/campaigns/1') return json(route, { data: campaign })
+      if (path === '/campaigns')
+        return json(route, { data: liveCampaigns, meta: { current_page: 1, last_page: 1, total: liveCampaigns.length } })
+      const campaignMatch = path.match(/^\/campaigns\/(\d+)$/)
+      if (campaignMatch) {
+        const found = liveCampaigns.find((c) => c.id === Number(campaignMatch[1]))
+        return found ? json(route, { data: found }) : json(route, { message: 'Not found' }, 404)
+      }
+      if (path === '/accounts') return json(route, { data: accounts, meta: { current_page: 1, last_page: 1, total: accounts.length } })
+      const accountMatch = path.match(/^\/accounts\/(\d+)$/)
+      if (accountMatch) {
+        const found = accounts.find((a) => a.id === Number(accountMatch[1]))
+        if (!found) return json(route, { message: 'Not found' }, 404)
+        return json(route, { data: { ...found, campaigns: liveCampaigns.filter((c) => c.account?.id === found.id) } })
+      }
       if (path === '/campaigns/1/changes') {
         log.submissions.push({ headers: req.headers(), body: req.postDataJSON() })
         if (submitError) return json(route, submitError.body, submitError.status)
@@ -226,6 +292,8 @@ export async function mockApi(
         return json(route, { data: { id: 7, status: 'rejected', approver: { id: user.id, name: user.name } } })
       }
       if (path === '/changelog') {
+        const accountId = new URL(req.url()).searchParams.get('account_id')
+        if (accountId === '2') return json(route, { data: [] })
         return json(route, {
           data: [
             {

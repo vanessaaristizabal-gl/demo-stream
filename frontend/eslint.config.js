@@ -2,7 +2,7 @@ import pluginVue from 'eslint-plugin-vue'
 import tseslint from 'typescript-eslint'
 import vueA11y from 'eslint-plugin-vuejs-accessibility'
 
-const FEATURES = ['auth', 'campaigns', 'approvals', 'changelog', 'system', 'lab']
+const FEATURES = ['auth', 'accounts', 'campaigns', 'changelog', 'system']
 // Identity is cross-cutting: any feature may ask "who is the user and what can they do".
 const SHARED_FEATURES = ['auth']
 

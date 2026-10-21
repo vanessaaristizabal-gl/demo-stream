@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { api } from '@/shared/api/client'
+import type { Rulebook } from '@/shared/api/types'
 
 export const useSystemStore = defineStore('system', () => {
   const emergencyStop = ref(false)
@@ -13,5 +14,10 @@ export const useSystemStore = defineStore('system', () => {
     emergencyStop.value = (await api<{ active: boolean }>('/emergency-stop', { method: 'POST', body: { active } })).active
   }
 
-  return { emergencyStop, load, setEmergencyStop }
+  const rulebooks = ref<Rulebook[]>([])
+  async function fetchRulebooks(): Promise<void> {
+    rulebooks.value = await api<Rulebook[]>('/rulebooks')
+  }
+
+  return { emergencyStop, load, setEmergencyStop, rulebooks, fetchRulebooks }
 })

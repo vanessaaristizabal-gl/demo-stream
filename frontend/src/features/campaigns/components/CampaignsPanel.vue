@@ -8,7 +8,13 @@ import type { CampaignRow } from '../rows'
 import CampaignTable from './CampaignTable.vue'
 
 const props = defineProps<{ rows: CampaignRow[]; platform?: PlatformInfo }>()
-const emit = defineEmits<{ open: [row: CampaignRow]; edit: [row: CampaignRow]; remove: [row: CampaignRow]; create: [] }>()
+const emit = defineEmits<{
+  open: [row: CampaignRow]
+  edit: [row: CampaignRow]
+  remove: [row: CampaignRow]
+  account: [accountId: number]
+  create: []
+}>()
 const guide = computed(() => (props.platform ? [props.platform] : []))
 </script>
 
@@ -21,7 +27,13 @@ const guide = computed(() => (props.platform ? [props.platform] : []))
       </DsMessage>
       <DsButton :icon="Plus" @click="emit('create')">New simulated campaign</DsButton>
     </div>
-    <CampaignTable :rows="rows" @open="emit('open', $event)" @edit="emit('edit', $event)" @remove="emit('remove', $event)" />
+    <CampaignTable
+      :rows="rows"
+      @open="emit('open', $event)"
+      @edit="emit('edit', $event)"
+      @remove="emit('remove', $event)"
+      @account="emit('account', $event)"
+    />
     <PlatformGuide v-if="platform" :platforms="guide" :default-open="[]" />
   </div>
 </template>

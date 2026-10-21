@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import AppHeader from './AppHeader.vue'
 
 const user = { id: 1, name: 'Ana Approver', email: 'a@x', role: 'approver' as const }
-const base = { user, dark: false, stopActive: false }
+const base = { user, dark: false }
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -15,7 +15,7 @@ describe('AppHeader', () => {
 
     expect(w.text()).toContain('Ana Approver')
     expect(w.text()).toContain('approver')
-    expect(w.get('nav[aria-label="Main"]').text()).toMatch(/Campaigns.*Approvals.*Changelog.*Lab/)
+    expect(w.get('nav[aria-label="Main"]').text()).toMatch(/Accounts.*Campaigns.*Changelog/)
   })
 
   it('labels the theme button for the theme it switches to', () => {
@@ -37,9 +37,14 @@ describe('AppHeader', () => {
     expect(w.emitted('logout')).toHaveLength(1)
   })
 
-  it('offers the emergency stop only to users who can use it, and only while writes are allowed', () => {
-    expect(mount(AppHeader, { props: { ...base, canStop: false } }).text()).not.toContain('Emergency stop')
-    expect(mount(AppHeader, { props: { ...base, canStop: true, stopActive: true } }).text()).not.toContain('Emergency stop')
-    expect(mount(AppHeader, { props: { ...base, canStop: true } }).text()).toContain('Emergency stop')
+  it('shows the Admin link only to admins, and no emergency stop button in the header', () => {
+    const admin = { ...user, role: 'admin' as const }
+    expect(mount(AppHeader, { props: base }).get('nav[aria-label="Main"]').text()).not.toContain('Admin')
+    expect(
+      mount(AppHeader, { props: { ...base, user: admin } })
+        .get('nav[aria-label="Main"]')
+        .text(),
+    ).toContain('Admin')
+    expect(mount(AppHeader, { props: { ...base, user: admin } }).text()).not.toContain('Emergency stop')
   })
 })

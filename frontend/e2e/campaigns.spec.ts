@@ -10,22 +10,51 @@ async function fillForm(page: Page) {
   await page.getByLabel('Landing page').fill('https://dealer.example.com/rav4')
 }
 
-test('live and simulated campaigns share one table per provider, with the source on every row', async ({ page }) => {
+test('live and simulated campaigns share one table per provider, with the source and the account on every row', async ({ page }) => {
   await mockApi(page)
   await page.goto('/campaigns')
 
   await expect(page.getByRole('heading', { level: 1, name: 'Campaigns' })).toBeVisible()
-  const tabs = page.getByRole('tablist', { name: 'Providers' })
+  const tabs = page.getByRole('tablist', { name: 'Campaign sections' })
   await expect(tabs.getByRole('tab', { name: /^Google Ads/ })).toHaveAttribute('aria-selected', 'true')
   const rows = page.getByRole('table', { name: 'Campaigns' }).locator('tbody tr')
-  await expect(rows).toHaveCount(2)
+  await expect(rows).toHaveCount(3)
   await expect(rows.filter({ hasText: 'Spring Camry' })).toContainText('Live')
   await expect(rows.filter({ hasText: 'Camry - Search leads' })).toContainText('Simulated')
+  await expect(rows.filter({ hasText: 'Camry - Search leads' })).toContainText('Demo sandbox')
   await expect(page.getByText('never reach a real account')).toBeVisible()
 
   await tabs.getByRole('tab', { name: /^Meta Ads/ }).click()
   await expect(page).toHaveURL(/tab=meta/)
-  await expect(page.getByText('No campaigns yet')).toBeVisible()
+  await expect(rows).toHaveCount(1)
+  await expect(rows).toContainText('Fall clearance 2025')
+})
+
+test('campaigns are filtered by status: active, paused, limited or ended', async ({ page }) => {
+  await mockApi(page)
+  await page.goto('/campaigns')
+  const rows = page.getByRole('table', { name: 'Campaigns' }).locator('tbody tr')
+  const status = page.getByRole('radiogroup', { name: 'Status' })
+  await expect(status.getByRole('radio')).toHaveText(['All (3)', 'Active (2)', 'Paused (0)', 'Limited (1)', 'Ended (0)'])
+
+  await status.getByRole('radio', { name: /^Limited/ }).click()
+  await expect(rows).toHaveCount(1)
+  await expect(rows).toContainText('Brand - Search')
+  await status.getByRole('radio', { name: /^Paused/ }).click()
+  await expect(page.getByText('No campaigns match these filters')).toBeVisible()
+  await status.getByRole('radio', { name: /^All/ }).click()
+  await expect(rows).toHaveCount(3)
+})
+
+test('the account of a live campaign links to the account page', async ({ page }) => {
+  await mockApi(page)
+  await page.goto('/campaigns')
+  await page
+    .getByRole('row', { name: /Spring Camry/ })
+    .getByRole('link', { name: 'Acme Motors' })
+    .click()
+  await expect(page).toHaveURL(/\/accounts\/1$/)
+  await expect(page.getByRole('heading', { level: 1, name: /Acme Motors/ })).toBeVisible()
 })
 
 test('the platform guide is folded under the table, per provider', async ({ page }) => {
@@ -35,7 +64,7 @@ test('the platform guide is folded under the table, per provider', async ({ page
   await expect(guide).toHaveAttribute('aria-expanded', 'false')
   await guide.click()
   await expect(page.getByRole('cell', { name: 'metrics.cost_micros' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /^Meta Ads/ })).toHaveCount(0) // only this provider's guide
+  await expect(page.getByRole('button', { name: /^Meta Ads \d+ metrics/ })).toHaveCount(0) // only this provider's guide
 })
 
 test('a live campaign is changed through approval; only a simulated one can be deleted', async ({ page }) => {

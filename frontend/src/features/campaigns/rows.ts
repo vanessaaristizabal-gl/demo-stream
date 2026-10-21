@@ -9,6 +9,8 @@ export interface CampaignRow {
   provider: 'google' | 'meta'
   /** The dealer for a live campaign; the demo sandbox for a simulated one. */
   owner: string
+  /** The account a live campaign belongs to (it has its own page); simulated campaigns have none. */
+  accountId: number | null
   status: string
   /** Cents; null when the provider did not report one. */
   daily_budget: number | null
@@ -22,6 +24,7 @@ export const fromLive = (c: Campaign): CampaignRow => ({
   name: c.name,
   provider: c.account?.provider ?? 'google',
   owner: c.account?.dealer_name ?? '—',
+  accountId: c.account?.id ?? null,
   status: c.status,
   daily_budget: c.live.daily_budget ?? null,
   created_at: c.created_at,
@@ -34,6 +37,7 @@ export const fromSimulated = (c: SandboxCampaign): CampaignRow => ({
   name: c.name,
   provider: c.platform,
   owner: 'Demo sandbox',
+  accountId: null,
   status: c.status,
   daily_budget: c.daily_budget,
   created_at: c.created_at,

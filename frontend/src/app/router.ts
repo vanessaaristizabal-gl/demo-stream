@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/features/auth/store'
 import type { RouteLocationRaw, RouteRecordRaw } from 'vue-router'
+import type { Role } from '@/shared/api/types'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -9,34 +10,24 @@ declare module 'vue-router' {
     crumb?: string
     /** Name of the parent route, for the trail and as the fallback target of Back. */
     parent?: string
+    /** Only these roles may open the page; anyone else is sent to the start page. */
+    roles?: Role[]
   }
 }
 
-const labRoutes: RouteRecordRaw[] = [
-  { path: '/lab', name: 'lab', component: () => import('@/features/lab/views/LabView.vue'), meta: { crumb: 'Lab' } },
+// These operations run on a mock served by `vite dev` (mock-backend/), so their pages exist only there.
+const previewRoutes: RouteRecordRaw[] = [
   {
-    path: '/lab/bulk',
-    name: 'lab-bulk',
-    component: () => import('@/features/lab/views/BulkApprovalView.vue'),
-    meta: { crumb: 'Bulk approval', parent: 'lab' },
+    path: '/campaigns/bulk',
+    name: 'campaign-bulk',
+    component: () => import('@/features/campaigns/bulk/BulkBudgetView.vue'),
+    meta: { crumb: 'Bulk budget change', parent: 'campaigns' },
   },
   {
-    path: '/lab/deploy',
-    name: 'lab-deploy',
-    component: () => import('@/features/lab/views/DeployWizardView.vue'),
-    meta: { crumb: 'Deploy a playbook', parent: 'lab' },
-  },
-  {
-    path: '/lab/template',
-    name: 'lab-template',
-    component: () => import('@/features/lab/views/TemplateFieldView.vue'),
-    meta: { crumb: 'Template field', parent: 'lab' },
-  },
-  {
-    path: '/lab/rows',
-    name: 'lab-rows',
-    component: () => import('@/features/lab/views/DenseListView.vue'),
-    meta: { crumb: 'Dense list', parent: 'lab' },
+    path: '/campaigns/copy',
+    name: 'campaign-copy',
+    component: () => import('@/features/campaigns/copy/AdCopyView.vue'),
+    meta: { crumb: 'Ad copy', parent: 'campaigns' },
   },
 ]
 
@@ -71,11 +62,26 @@ export const router = createRouter({
       props: (route) => ({ id: Number(route.params.id) }),
       meta: { crumb: 'Campaign', parent: 'campaigns' },
     },
+    // Approvals are a tab of Campaigns: a change request is a change to a campaign.
+    { path: '/approvals', redirect: { name: 'campaigns', query: { tab: 'approvals' } } },
     {
-      path: '/approvals',
-      name: 'approvals',
-      component: () => import('@/features/approvals/views/ApprovalsView.vue'),
-      meta: { crumb: 'Approvals' },
+      path: '/accounts',
+      name: 'accounts',
+      component: () => import('@/features/accounts/views/AccountsView.vue'),
+      meta: { crumb: 'Accounts' },
+    },
+    {
+      path: '/accounts/:id(\\d+)',
+      name: 'account',
+      component: () => import('@/features/accounts/views/AccountView.vue'),
+      props: (route) => ({ id: Number(route.params.id) }),
+      meta: { crumb: 'Account', parent: 'accounts' },
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('@/features/system/views/AdminView.vue'),
+      meta: { crumb: 'Admin', roles: ['admin'] },
     },
     {
       path: '/changelog',
@@ -86,8 +92,14 @@ export const router = createRouter({
     // The sandbox became part of Campaigns (simulated campaigns sit beside live ones); old links still work.
     { path: '/sandbox', redirect: { name: 'campaigns' } },
     { path: '/sandbox/:id(\\d+)', redirect: (to) => ({ name: 'campaign-simulated', params: { id: to.params.id } }) },
-    // The practice lab runs on a mock served by `vite dev` (lab-api/), so it exists only there.
-    ...(import.meta.env.DEV ? labRoutes : []),
+    // The practice-lab addresses of earlier versions still land somewhere sensible.
+    { path: '/lab', redirect: { name: 'campaigns' } },
+    { path: '/playbooks', redirect: { name: 'campaigns' } },
+    { path: '/lab/deploy', redirect: { name: 'accounts' } },
+    { path: '/lab/bulk', redirect: { name: 'campaigns' } },
+    { path: '/lab/template', redirect: { name: 'campaigns' } },
+    { path: '/lab/rows', redirect: { name: 'campaigns' } },
+    ...(import.meta.env.DEV ? previewRoutes : []),
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
@@ -114,4 +126,8 @@ router.beforeEach(async (to) => {
       return toLogin(to.fullPath)
     }
   }
+
+  // A page for some roles only (Admin): everyone else lands on the start page instead of a screen they cannot use.
+  const roles = to.meta.roles
+  if (roles && !(auth.user && roles.includes(auth.user.role))) return { name: 'campaigns' }
 })

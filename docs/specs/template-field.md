@@ -1,6 +1,6 @@
 # Spec: Template field with a character limit
 
-Component: features/lab/components/TemplateField
+Component: features/campaigns/copy/TemplateField
 
 An administrator writes ad copy such as `{{ dealer.name }} - 0% APR this month`. Placeholders are filled in when the ad is built, so the limit of 30 characters applies to the text AFTER substitution, not to what was typed.
 

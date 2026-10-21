@@ -16,6 +16,8 @@ export interface AdAccount {
   external_id: string
   dealer_name: string
   manufacturer: string | null
+  /** Cents: this account's own monthly budget from Salesforce; null when it has none yet. */
+  monthly_budget?: number | null
 }
 
 /** Editable campaign fields. daily_budget is in minor units (cents). */
@@ -39,6 +41,23 @@ export interface Campaign {
 }
 
 export type FieldDiff = Record<string, { old: unknown; new: unknown }>
+
+/** An ad account: one dealer on one provider, with its own monthly budget and its campaigns. */
+export interface Account {
+  id: number
+  provider: 'google' | 'meta'
+  external_id: string
+  dealer_name: string
+  manufacturer: string | null
+  /** Cents; null when Salesforce has no budget for this account yet. */
+  monthly_budget: number | null
+  campaigns_count: number
+  created_at: string
+}
+
+export interface AccountDetail extends Account {
+  campaigns: Campaign[]
+}
 
 export interface ChangeRequest {
   id: number
@@ -176,12 +195,13 @@ export interface PlatformInfo {
 }
 
 /*
- * Practice lab (dev-only mock served by lab-api/, not by Laravel): three screens that exercise the backend
- * behaviours the product has to handle (a preview with holds, a partial failure, a lock, a dense list, a rate limit).
+ * Playbooks (dev-only mock served by mock-backend/, not by Laravel): bulk operations across accounts that exercise the
+ * behaviours the product has to handle (a preview with held items, a partial failure, a rate limit).
  */
-export interface LabChange {
+export interface BatchChange {
   id: number
-  account: string
+  /** What the item is: an account, a campaign. */
+  label: string
   field: 'daily_budget' | 'monthly_budget'
   /** Cents. */
   before: number
@@ -192,59 +212,37 @@ export interface LabChange {
   hold_reason: string | null
 }
 
-export interface LabPreview {
+export interface BatchPreview {
   batch_id: string
   total: number
   ready: number
   held: number
-  items: LabChange[]
+  items: BatchChange[]
 }
 
-export interface LabApplyFailure {
+export interface BatchFailure {
   id: number
   code: 'rate_limited' | 'provider_rejected' | 'held'
   message: string
   retryable: boolean
 }
 
-export interface LabApplyResult {
+export interface BatchResult {
   batch_id: string
   applied: number[]
-  failed: LabApplyFailure[]
+  failed: BatchFailure[]
 }
 
-export type LabRowStatus = 'active' | 'paused' | 'limited' | 'ended'
-
-export interface LabRow {
-  id: number
-  name: string
-  dealer: string
-  status: LabRowStatus
-  /** Cents. */
-  daily_budget: number
-  /** Why the budget cannot be edited; null when it can. */
-  locked_reason: string | null
-}
-
-export interface LabRowsQuery {
-  page: number
-  per_page: number
-  status: LabRowStatus | ''
-  q: string
-  sort: 'name' | 'dealer' | 'status' | 'daily_budget' | ''
-  dir: 'asc' | 'desc'
-}
-
-export interface LabDealer {
+export interface Dealer {
   id: string
   name: string
   city: string
 }
 
-export interface LabReceipt {
+export interface BatchReceipt {
   id: number
   batch_id: string
-  account: string
+  label: string
   actor: string
   summary: string
   /** The governed write path, step by step: validated, compliance, dry-run, write. */
@@ -252,33 +250,37 @@ export interface LabReceipt {
   at: string
 }
 
-export type LabOem = 'stellantis' | 'none'
+export type LaunchOem = 'stellantis' | 'none'
 
-export interface LabDeployAccount {
-  id: number
-  name: string
-  oem: 'stellantis' | 'toyota'
-  /** Whether Salesforce has an active budget group for this campaign group. Without one the campaign holds at deploy. */
-  budget_group: 'active' | 'none'
-  /** Cents: the Salesforce-approved monthly envelope. A deploy may never go above it. */
-  envelope: number
+/** What a playbook launches on one account, and which OEM rulebooks can be applied to it. */
+export interface LaunchPlan {
+  playbook: { id: string; name: string }
+  oems: { id: LaunchOem; label: string; rules: number | null; source: string | null }[]
+  /** The campaigns the playbook creates; `share` is the part of the account's monthly cap each one gets. */
+  campaigns: { id: number; name: string; share: number }[]
 }
 
-export interface LabDeployOptions {
-  campaign_type: { id: string; label: string }
-  oems: { id: LabOem; label: string; rules: number | null; source: string | null }[]
-  accounts: LabDeployAccount[]
-}
-
-export interface LabDeploySettings {
-  /** Cents. */
+/** Account settings for one launch. They start from the account's own values and change only when needed. */
+export interface LaunchSettings {
+  /** Cents; defaults to the account's own monthly budget. */
   monthly_cap: number
   pacing: 'even' | 'front_loaded'
   status_at_write: 'paused' | 'enabled'
 }
 
-export interface LabDeployRequest {
-  oem: LabOem
-  account_ids: number[]
-  settings: LabDeploySettings
+export interface LaunchRequest {
+  account: { id: number; name: string; manufacturer: string | null; monthly_budget: number | null }
+  oem: LaunchOem
+  campaign_ids: number[]
+  settings: LaunchSettings
+}
+
+/** A manufacturer's rulebook version. Effective dates are ISO 8601; `effective_to` is null while it is the current one. */
+export interface Rulebook {
+  id: number
+  manufacturer: string
+  version: number
+  effective_from: string
+  effective_to: string | null
+  rules: { id: string; field: string; operator: string; value?: unknown; message: string }[]
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { expectNoA11yViolations } from '@/shared/test/axe'
 import type { CampaignRow } from '../rows'
 import CampaignTable from './CampaignTable.vue'
@@ -11,6 +11,7 @@ const row = (id: number, overrides: Partial<CampaignRow> = {}): CampaignRow => (
   name: 'Spring Camry',
   provider: 'google',
   owner: 'Acme Motors',
+  accountId: 12,
   status: 'active',
   daily_budget: 10000,
   created_at: '2026-10-01T14:30:00+00:00',
@@ -23,13 +24,15 @@ const rows = [
     kind: 'simulated',
     name: 'Another',
     owner: 'Demo sandbox',
+    accountId: null,
     status: 'paused',
     daily_budget: 25000,
     created_at: '2026-12-24T09:00:00+00:00',
   }),
   row(7, { name: 'Zebra Lease', daily_budget: 5000, created_at: '2026-03-02T09:00:00+00:00' }),
 ]
-const names = (w: ReturnType<typeof mount>) => w.findAll('tbody a').map((a) => a.text())
+// The campaign name is the first link of each row (the account is the second).
+const names = (w: ReturnType<typeof mount>) => w.findAll('tbody tr').flatMap((r) => (r.find('a') ? [r.get('a').text()] : []))
 const make = (r = rows) => mount(CampaignTable, { props: { rows: r }, attachTo: document.body })
 
 describe('CampaignTable', () => {
@@ -75,7 +78,7 @@ describe('CampaignTable', () => {
     await search.setValue('simulated')
     expect(names(w)).toEqual(['Another'])
     await search.setValue('nothing like this')
-    expect(w.text()).toContain('No campaigns match your search')
+    expect(w.text()).toContain('No campaigns match these filters')
   })
 
   it('sorts by budget when its header is activated, and exposes the state to assistive tech', async () => {
@@ -90,6 +93,42 @@ describe('CampaignTable', () => {
     const cell = make().findAll('tbody tr')[1].find('time')
     expect(cell.attributes('datetime')).toBe('2026-10-01T14:30:00+00:00')
     expect(cell.text()).toBe('Oct 1, 2026')
+  })
+
+  it('filters by status, with counts, and combines with the search', async () => {
+    const limited = row(8, { key: 'live-8', name: 'Limited by budget', status: 'limited' })
+    const ended = row(9, { key: 'live-9', name: 'Fall clearance', status: 'ended' })
+    const w = make([...rows, limited, ended])
+    expect(w.findAll('[role="radio"]').map((r) => r.text())).toEqual(['All (5)', 'Active (2)', 'Paused (1)', 'Limited (1)', 'Ended (1)'])
+
+    const pick = async (label: RegExp) => {
+      await w
+        .findAll('[role="radio"]')
+        .find((r) => label.test(r.text()))!
+        .trigger('click')
+      await flushPromises()
+    }
+    await pick(/^Limited/)
+    expect(names(w)).toEqual(['Limited by budget'])
+    await pick(/^Ended/)
+    expect(names(w)).toEqual(['Fall clearance'])
+    await pick(/^Active/)
+    await w.get('input[type="search"]').setValue('zebra')
+    expect(names(w)).toEqual(['Zebra Lease'])
+    await pick(/^Paused/)
+    expect(w.text()).toContain('No campaigns match these filters')
+  })
+
+  it('links the account of a live campaign to its page and shows no link for a simulated one', async () => {
+    const w = make()
+    await w
+      .findAll('a')
+      .find((a) => a.text() === 'Acme Motors')!
+      .trigger('click')
+    expect(w.emitted('account')).toEqual([[12]])
+    const simulated = w.findAll('tbody tr').find((r) => r.text().includes('Another'))!
+    expect(simulated.findAll('a').map((a) => a.text())).toEqual(['Another'])
+    expect(simulated.text()).toContain('Demo sandbox')
   })
 
   it('has no automatable accessibility violations', async () => {

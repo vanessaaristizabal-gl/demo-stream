@@ -1,6 +1,6 @@
 # Spec: Bulk approval preview
 
-Component: features/lab/components/BulkApprovalPreview
+Component: shared/components/BatchPreview
 
 A strategist raises the daily budget of 300 campaigns by 10%. The screen shows what will change, what is held and why, takes one approval, then reports what the provider actually did: some items succeed, some fail, and the failures can be retried.
 

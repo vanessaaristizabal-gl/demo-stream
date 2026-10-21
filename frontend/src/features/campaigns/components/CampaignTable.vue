@@ -1,25 +1,46 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { Inbox, Pencil, Trash2 } from 'lucide-vue-next'
-import { DsButton, DsCard, DsEmptyState, DsInput, DsPagination, DsTable, DsTag, useTable, type DsColumn } from '@/design-system'
+import {
+  DsButton,
+  DsCard,
+  DsEmptyState,
+  DsInput,
+  DsPagination,
+  DsSegmented,
+  DsTable,
+  DsTag,
+  useTable,
+  type DsColumn,
+} from '@/design-system'
 import DateText from '@/shared/components/DateText.vue'
 import StatusBadge from '@/shared/components/StatusBadge.vue'
 import { dateSortKey, formatMoney } from '@/shared/utils/format'
 import type { CampaignRow } from '../rows'
 
 const props = defineProps<{ rows: CampaignRow[] }>()
-const emit = defineEmits<{ open: [row: CampaignRow]; edit: [row: CampaignRow]; remove: [row: CampaignRow] }>()
+const emit = defineEmits<{ open: [row: CampaignRow]; edit: [row: CampaignRow]; remove: [row: CampaignRow]; account: [accountId: number] }>()
 
 const COLUMNS: DsColumn[] = [
   { key: 'name', label: 'Campaign', sortable: true },
   { key: 'kind', label: 'Source', sortable: true },
-  { key: 'owner', label: 'Dealer', sortable: true },
+  { key: 'owner', label: 'Account', sortable: true },
   { key: 'status', label: 'Status', sortable: true },
   { key: 'budget', label: 'Daily budget', sortable: true, align: 'end' },
   { key: 'created', label: 'Created', sortable: true },
   { key: 'actions', label: 'Actions' },
 ]
 
-const { search, sort, page, pageCount, pageRows } = useTable(() => props.rows, {
+// Filter by what the provider reports for the campaign: Active, Paused, Limited (by budget) or Ended.
+const STATUSES = ['active', 'paused', 'limited', 'ended'] as const
+const status = ref<'all' | (typeof STATUSES)[number]>('all')
+const STATUS_OPTIONS = computed(() => [
+  { label: `All (${props.rows.length})`, value: 'all' },
+  ...STATUSES.map((s) => ({ label: `${s[0].toUpperCase()}${s.slice(1)} (${props.rows.filter((r) => r.status === s).length})`, value: s })),
+])
+const shown = computed(() => (status.value === 'all' ? props.rows : props.rows.filter((r) => r.status === status.value)))
+
+const { search, sort, page, pageCount, pageRows } = useTable(shown, {
   pageSize: 10,
   initialSort: { key: 'name', dir: 'asc' },
   searchText: (r) => `${r.name} ${r.owner} ${r.kind}`,
@@ -36,11 +57,16 @@ const { search, sort, page, pageCount, pageRows } = useTable(() => props.rows, {
   </DsCard>
   <DsCard v-else :padded="false" class="table-card">
     <div class="toolbar">
-      <DsInput v-model="search" label="Search campaigns" type="search" placeholder="Name, dealer or source" />
+      <DsSegmented v-model="status" label="Status" :options="STATUS_OPTIONS" />
+      <DsInput v-model="search" label="Search campaigns" type="search" placeholder="Name, account or source" />
     </div>
     <DsTable v-model:sort="sort" :columns="COLUMNS" :rows="pageRows" row-key="key" caption="Campaigns">
       <template #cell-name="{ row }">
         <a href="#" class="link" @click.prevent="emit('open', row)">{{ row.name }}</a>
+      </template>
+      <template #cell-owner="{ row }">
+        <a v-if="row.accountId !== null" href="#" class="link" @click.prevent="emit('account', row.accountId)">{{ row.owner }}</a>
+        <span v-else class="ds-muted">{{ row.owner }}</span>
       </template>
       <template #cell-kind="{ row }">
         <DsTag :tone="row.kind === 'live' ? 'info' : 'neutral'">{{ row.kind === 'live' ? 'Live' : 'Simulated' }}</DsTag>
@@ -68,7 +94,7 @@ const { search, sort, page, pageCount, pageRows } = useTable(() => props.rows, {
           />
         </span>
       </template>
-      <template #empty>No campaigns match your search.</template>
+      <template #empty>No campaigns match these filters.</template>
     </DsTable>
     <DsPagination v-model:page="page" :page-count="pageCount" />
   </DsCard>
@@ -79,9 +105,12 @@ const { search, sort, page, pageCount, pageRows } = useTable(() => props.rows, {
   overflow: hidden;
 }
 .toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--ds-space-4);
   padding: var(--ds-space-4);
   border-bottom: var(--ds-border-width-thin) solid var(--ds-color-border-default);
-  max-width: 28rem;
 }
 .link {
   color: var(--ds-color-text-link);

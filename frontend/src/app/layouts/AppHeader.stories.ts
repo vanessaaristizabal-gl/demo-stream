@@ -9,11 +9,8 @@ const meta = {
   args: {
     user: { id: 1, name: 'Ana Approver', email: 'approver@example.com', role: 'approver' },
     dark: false,
-    stopActive: false,
-    canStop: false,
     onLogout: fn(),
     onToggleTheme: fn(),
-    onEngageStop: fn(),
   },
 } satisfies Meta<typeof AppHeader>
 
@@ -22,8 +19,8 @@ type Story = StoryObj<typeof meta>
 
 export const Approver: Story = {}
 
-export const AdminWithEmergencyStop: Story = {
-  args: { user: { id: 3, name: 'Adi Admin', email: 'admin@example.com', role: 'admin' }, canStop: true },
+export const Admin: Story = {
+  args: { user: { id: 3, name: 'Adi Admin', email: 'admin@example.com', role: 'admin' } },
 }
 
 export const DarkToggle: Story = {

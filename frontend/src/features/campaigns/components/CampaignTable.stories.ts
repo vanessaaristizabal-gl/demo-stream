@@ -10,6 +10,7 @@ const live: CampaignRow = {
   name: 'Spring Camry',
   provider: 'google',
   owner: 'Acme Motors',
+  accountId: 1,
   status: 'active',
   daily_budget: 10000,
   created_at: '2026-10-01T14:30:00+00:00',
@@ -21,6 +22,7 @@ const simulated: CampaignRow = {
   name: 'Summer RAV4',
   provider: 'google',
   owner: 'Demo sandbox',
+  accountId: null,
   status: 'paused',
   daily_budget: 25000,
   created_at: '2026-10-12T09:00:00+00:00',
@@ -36,4 +38,14 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = { args: { rows: [live, simulated] } }
+export const Limited: Story = {
+  args: {
+    rows: [
+      live,
+      { ...live, key: 'live-3', id: 3, name: 'Brand - Search', status: 'limited' },
+      { ...live, key: 'live-4', id: 4, name: 'Fall clearance 2025', status: 'ended' },
+      simulated,
+    ],
+  },
+}
 export const Empty: Story = { args: { rows: [] } }

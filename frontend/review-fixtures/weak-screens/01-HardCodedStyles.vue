@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { LabPreview } from '@/shared/api/types'
+import type { BatchPreview } from '@/shared/api/types'
 
-defineProps<{ preview: LabPreview; error: string | null; failed: { id: number; message: string }[] }>()
+defineProps<{ preview: BatchPreview; error: string | null; failed: { id: number; message: string }[] }>()
 defineEmits<{ approve: [] }>()
 </script>
 
@@ -12,7 +12,7 @@ defineEmits<{ approve: [] }>()
     <p v-if="failed.length" role="status">{{ failed.length }} failed</p>
     <table>
       <tr v-for="item in preview.items" :key="item.id">
-        <td>{{ item.account }}</td>
+        <td>{{ item.label }}</td>
         <td>{{ item.before }} to {{ item.after }}</td>
       </tr>
     </table>

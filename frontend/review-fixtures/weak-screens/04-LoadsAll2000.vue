@@ -2,15 +2,15 @@
 import { computed, onMounted, ref } from 'vue'
 import { DsInput } from '@/design-system'
 import { api } from '@/shared/api/client'
-import type { LabRow } from '@/shared/api/types'
+import type { Campaign } from '@/shared/api/types'
 
-const rows = ref<LabRow[]>([])
+const rows = ref<Campaign[]>([])
 const error = ref<string | null>(null)
 const search = ref('')
 
 onMounted(async () => {
   try {
-    rows.value = (await api<{ data: LabRow[] }>('/lab/rows?per_page=2000')).data
+    rows.value = (await api<{ data: Campaign[] }>('/campaigns?per_page=2000')).data
   } catch (e) {
     error.value = (e as Error).message
   }

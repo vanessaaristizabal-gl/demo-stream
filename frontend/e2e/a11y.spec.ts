@@ -16,7 +16,14 @@ async function audit(page: Page) {
 const pages = [
   ['campaigns', '/campaigns'],
   ['campaign detail', '/campaigns/1'],
-  ['approvals', '/approvals'],
+  ['campaigns, Approvals tab', '/campaigns?tab=approvals'],
+  ['accounts', '/accounts'],
+  ['account', '/accounts/1'],
+  ['account without a budget', '/accounts/2'],
+  ['account, Launch tab', '/accounts/1?tab=launch'],
+  ['account, Changelog tab', '/accounts/1?tab=changelog'],
+  ['bulk budget change', '/campaigns/bulk'],
+  ['ad copy', '/campaigns/copy'],
   ['changelog', '/changelog'],
   ['campaigns, Meta tab', '/campaigns?tab=meta'],
   ['new simulated campaign', '/campaigns/new'],
@@ -51,11 +58,24 @@ for (const scheme of ['light', 'dark'] as const) {
 
     test('the emergency stop confirmation dialog has no violations', async ({ page }) => {
       await mockApi(page, { role: 'admin' })
-      await page.goto('/campaigns')
+      await page.goto('/admin')
       await page.getByRole('button', { name: 'Emergency stop' }).click()
       await expect(page.getByRole('alertdialog')).toBeVisible()
       await audit(page)
     })
+
+    for (const [name, path] of [
+      ['admin, emergency stop', '/admin'],
+      ['admin, OEM rulebooks', '/admin?tab=rulebooks'],
+    ] as const) {
+      test(`${name} has no automatable WCAG 2.2 AA violations`, async ({ page }) => {
+        await mockApi(page, { role: 'admin' })
+        await page.goto(path)
+        await expect(page.getByRole('heading', { level: 1, name: 'Admin' })).toBeVisible()
+        await page.waitForLoadState('networkidle')
+        await audit(page)
+      })
+    }
 
     test('emergency banner has no violations', async ({ page }) => {
       await mockApi(page, { role: 'admin', emergencyStop: true })
@@ -67,7 +87,8 @@ for (const scheme of ['light', 'dark'] as const) {
 }
 
 for (const [name, path, ready] of [
-  ['approvals', '/approvals', 'Change request 7'],
+  ['accounts', '/accounts', null],
+  ['approvals', '/campaigns?tab=approvals', null],
   ['campaigns', '/campaigns', null],
   ['changelog', '/changelog', null],
   ['campaign detail', '/campaigns/1', null],

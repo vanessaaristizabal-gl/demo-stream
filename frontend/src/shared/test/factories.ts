@@ -1,12 +1,11 @@
 import type {
+  LaunchPlan,
+  Account,
   Campaign,
   ChangeRequest,
-  LabChange,
-  LabDeployOptions,
-  LabReceipt,
-  LabPreview,
-  LabRow,
-  LabRowsQuery,
+  BatchChange,
+  BatchReceipt,
+  BatchPreview,
   PlatformInfo,
   SandboxCampaign,
   SandboxCampaignDetail,
@@ -168,13 +167,13 @@ export function makePlatformCatalog(): PlatformInfo[] {
   ]
 }
 
-export function makeLabPreview(overrides: { ready?: number; held?: number } = {}): LabPreview {
+export function makeBatchPreview(overrides: { ready?: number; held?: number } = {}): BatchPreview {
   const ready = overrides.ready ?? 30
   const held = overrides.held ?? 3
-  const items: LabChange[] = [
+  const items: BatchChange[] = [
     ...Array.from({ length: ready }, (_, i) => ({
       id: i + 1,
-      account: `Dealer ${String(i + 1).padStart(3, '0')}`,
+      label: `Dealer ${String(i + 1).padStart(3, '0')}`,
       field: 'daily_budget' as const,
       before: 5000,
       after: 5500,
@@ -183,7 +182,7 @@ export function makeLabPreview(overrides: { ready?: number; held?: number } = {}
     })),
     ...Array.from({ length: held }, (_, i) => ({
       id: ready + i + 1,
-      account: `Held dealer ${i + 1}`,
+      label: `Held dealer ${i + 1}`,
       field: 'daily_budget' as const,
       before: 8000,
       after: 8800,
@@ -194,42 +193,44 @@ export function makeLabPreview(overrides: { ready?: number; held?: number } = {}
   return { batch_id: 'batch-1', total: ready + held, ready, held, items }
 }
 
-export function makeLabRow(id: number, overrides: Partial<LabRow> = {}): LabRow {
-  return {
-    id,
-    name: `Campaign ${String(id).padStart(4, '0')}`,
-    dealer: 'Acme Motors',
-    status: 'active',
-    daily_budget: 5000,
-    locked_reason: null,
-    ...overrides,
-  }
-}
-
-export const labQuery: LabRowsQuery = { page: 1, per_page: 50, status: '', q: '', sort: '', dir: 'asc' }
-
-export function makeDeployOptions(): LabDeployOptions {
-  return {
-    campaign_type: { id: 'core-models-search', label: 'Core Models Search' },
-    oems: [
-      { id: 'stellantis', label: 'Stellantis', rules: 35, source: 'Shift Digital Integration Spec v2.4' },
-      { id: 'none', label: 'No OEM', rules: null, source: null },
-    ],
-    accounts: [
-      { id: 1, name: 'Schrute CDJR', oem: 'stellantis', budget_group: 'active', envelope: 250000 },
-      { id: 2, name: 'Anderson CDJR', oem: 'stellantis', budget_group: 'none', envelope: 0 },
-      { id: 3, name: 'Lakeside Toyota', oem: 'toyota', budget_group: 'active', envelope: 250000 },
-    ],
-  }
-}
-
-export const makeReceipt = (id: number, overrides: Partial<LabReceipt> = {}): LabReceipt => ({
+export const makeReceipt = (id: number, overrides: Partial<BatchReceipt> = {}): BatchReceipt => ({
   id,
   batch_id: 'deploy-1',
-  account: 'Schrute CDJR',
+  label: 'Schrute CDJR',
   actor: 'Demo strategist',
   summary: 'Deployed Core Models Search (Stellantis rulebook)',
   steps: ['validated', 'compliance', 'dry-run', 'write'],
   at: '2026-10-20T15:30:00Z',
   ...overrides,
 })
+
+export function makeAccount(overrides: Partial<Account> = {}): Account {
+  return {
+    id: 1,
+    provider: 'google',
+    external_id: '9990001',
+    dealer_name: 'Schrute CDJR',
+    manufacturer: 'stellantis',
+    monthly_budget: 555000,
+    campaigns_count: 4,
+    created_at: '2026-10-01T14:30:00+00:00',
+    ...overrides,
+  }
+}
+
+export function makeLaunchPlan(): LaunchPlan {
+  return {
+    playbook: { id: 'core-models', name: 'Core models' },
+    oems: [
+      { id: 'stellantis', label: 'Stellantis', rules: 35, source: 'Shift Digital Integration Spec v2.4' },
+      { id: 'none', label: 'No OEM', rules: null, source: null },
+    ],
+    campaigns: [
+      { id: 1, name: 'New models · Search', share: 0.3 },
+      { id: 2, name: 'Used · Search', share: 0.2 },
+      { id: 3, name: 'Brand · Search', share: 0.1 },
+      { id: 4, name: 'Vehicle listing ads · PMAX', share: 0.25 },
+      { id: 5, name: 'Core models · PMAX', share: 0.15 },
+    ],
+  }
+}

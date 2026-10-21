@@ -2,14 +2,14 @@
 import { ref } from 'vue'
 import { DsButton, DsMessage } from '@/design-system'
 import { api } from '@/shared/api/client'
-import type { LabApplyResult, Resource } from '@/shared/api/types'
+import type { BatchResult, Resource } from '@/shared/api/types'
 
 const applied = ref<number[]>([])
 const error = ref<string | null>(null)
 
 async function approve(): Promise<void> {
   try {
-    const result = (await api<Resource<LabApplyResult>>('/lab/bulk/apply', { method: 'POST', body: { batch_id: 'batch-1' }, headers: { 'Idempotency-Key': crypto.randomUUID() } })).data
+    const result = (await api<Resource<BatchResult>>('/playbooks/batches/apply', { method: 'POST', body: { batch_id: 'batch-1' }, headers: { 'Idempotency-Key': crypto.randomUUID() } })).data
     applied.value = result.applied
   } catch (e) {
     error.value = (e as Error).message

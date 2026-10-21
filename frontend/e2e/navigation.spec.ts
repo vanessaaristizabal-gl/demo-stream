@@ -9,8 +9,8 @@ test('every page shows where you are with a breadcrumb', async ({ page }) => {
   await expect(trail).toContainText('Home')
   await expect(trail.locator('[aria-current="page"]')).toHaveText('Campaigns')
 
-  await page.goto('/approvals')
-  await expect(trail.locator('[aria-current="page"]')).toHaveText('Approvals')
+  await page.goto('/accounts')
+  await expect(trail.locator('[aria-current="page"]')).toHaveText('Accounts')
 
   await page.goto('/changelog')
   await expect(trail.locator('[aria-current="page"]')).toHaveText('Changelog')
@@ -38,9 +38,9 @@ test('the Home crumb goes to the start page', async ({ page }) => {
 
 test('Back appears only on nested pages and returns to the previous page', async ({ page }) => {
   await mockApi(page)
-  await page.goto('/approvals')
+  await page.goto('/accounts')
   // Wait for the first navigation to finish: a click during it is resolved by the router as a replace (no history entry).
-  await expect(page.getByRole('heading', { name: 'Approvals' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Accounts' })).toBeVisible()
   await page.getByRole('link', { name: 'Campaigns' }).first().click()
   await expect(page.getByRole('heading', { name: 'Campaigns' })).toBeVisible()
   await page.getByRole('link', { name: 'Spring Camry' }).click()
@@ -62,12 +62,12 @@ test('Back is never a dead end: a campaign opened directly goes up to the list',
 
 for (const [name, path] of [
   ['campaigns', '/campaigns'],
-  ['approvals', '/approvals'],
+  ['accounts', '/accounts'],
   ['changelog', '/changelog'],
 ] as const) {
   test(`${name} is a main page: no Back, even after navigating from elsewhere`, async ({ page }) => {
     await mockApi(page, { role: 'approver' })
-    await page.goto(name === 'campaigns' ? '/changelog' : '/campaigns')
+    await page.goto(name === 'campaigns' ? '/changelog' : name === 'changelog' ? '/accounts' : '/campaigns')
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     await page
       .getByRole('navigation', { name: 'Main' })
@@ -89,14 +89,14 @@ test('the login page has no breadcrumb or Back', async ({ page }) => {
 test('signing in lands on the page you were trying to open', async ({ page }) => {
   await mockApi(page)
   await page.addInitScript(() => localStorage.removeItem('stream.token')) // signed out
-  await page.goto('/approvals')
+  await page.goto('/accounts')
 
-  await expect(page).toHaveURL(/\/login\?redirect=(%2F|\/)approvals$/)
+  await expect(page).toHaveURL(/\/login\?redirect=(%2F|\/)accounts$/)
   await page.getByLabel('Email').fill('approver@example.com')
   await page.getByLabel(/^Password/).fill('password')
   await page.getByRole('button', { name: 'Sign in' }).click()
 
-  await expect(page).toHaveURL(/\/approvals$/)
+  await expect(page).toHaveURL(/\/accounts$/)
 })
 
 test('a crafted redirect cannot send you to another site after signing in', async ({ page }) => {

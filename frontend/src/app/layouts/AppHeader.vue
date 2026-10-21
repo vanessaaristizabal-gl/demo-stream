@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import { Beaker, History, ListChecks, LogOut, Megaphone, Moon, Sun, Zap } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { Building2, History, LogOut, Megaphone, Moon, ShieldCheck, Sun, Zap } from 'lucide-vue-next'
 import { RouterLink } from 'vue-router'
 import { DsButton } from '@/design-system'
 import type { User } from '@/shared/api/types'
-import EmergencyStopButton from '@/features/system/components/EmergencyStopButton.vue'
 
-defineProps<{ user: User; dark: boolean; stopActive: boolean; canStop?: boolean; stopBusy?: boolean; stopError?: string | null }>()
-const emit = defineEmits<{ logout: []; toggleTheme: []; engageStop: [] }>()
+const props = defineProps<{ user: User; dark: boolean }>()
+const emit = defineEmits<{ logout: []; toggleTheme: [] }>()
 
-const LINKS = [
+const LINKS = computed(() => [
+  { name: 'accounts', label: 'Accounts', icon: Building2 },
   { name: 'campaigns', label: 'Campaigns', icon: Megaphone },
-  { name: 'approvals', label: 'Approvals', icon: ListChecks },
   { name: 'changelog', label: 'Changelog', icon: History },
-  ...(import.meta.env.DEV ? [{ name: 'lab', label: 'Lab', icon: Beaker }] : []),
-]
+  // Administration (the emergency stop, the OEM rulebooks) is for admins only.
+  ...(props.user.role === 'admin' ? [{ name: 'admin', label: 'Admin', icon: ShieldCheck }] : []),
+])
 </script>
 
 <template>
@@ -26,7 +27,6 @@ const LINKS = [
       </RouterLink>
     </nav>
     <div class="actions">
-      <EmergencyStopButton v-if="canStop && !stopActive" :busy="stopBusy" :error="stopError" @engage="emit('engageStop')" />
       <span class="who hide-sm">
         <strong>{{ user.name }}</strong> <span class="ds-muted">{{ user.role }}</span>
       </span>

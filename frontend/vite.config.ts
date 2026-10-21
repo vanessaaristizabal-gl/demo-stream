@@ -1,10 +1,10 @@
 import { fileURLToPath, URL } from 'node:url'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vitest/config'
-import { labApi } from './lab-api/plugin.ts'
+import { playbooksMock } from './mock-backend/plugin.ts'
 
 export default defineConfig({
-  plugins: [vue(), labApi()],
+  plugins: [vue(), playbooksMock()],
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   server: {
     port: 5173,
@@ -13,7 +13,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    include: ['src/**/*.spec.ts', 'tokens/**/*.spec.ts', 'tools/**/*.spec.ts', 'lab-api/**/*.spec.ts'],
+    include: ['src/**/*.spec.ts', 'tokens/**/*.spec.ts', 'tools/**/*.spec.ts', 'mock-backend/**/*.spec.ts'],
     setupFiles: ['src/shared/test/setup.ts'],
     coverage: {
       provider: 'v8',
