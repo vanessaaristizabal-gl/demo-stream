@@ -9,6 +9,8 @@ const name = basename(path)
 
 const rules = [
   [/^\.env(\..+)?$/.test(name) && name !== '.env.example', 'Secrets live in .env and must not be edited by the agent. Edit .env.example for new keys.'],
+  [/\.(pem|key|p12|pfx|keystore)$/.test(name) || /^id_(rsa|ed25519|ecdsa)/.test(name), 'Private keys and certificates are secrets: the agent must not edit them.'],
+  [/^(credentials|secrets?|service-account)[^/]*\.(json|ya?ml|toml)$/i.test(name) || ['.npmrc', 'auth.json'].includes(name), 'Credential files are secrets: the agent must not edit them.'],
   [['package-lock.json', 'composer.lock'].includes(name), 'Lockfiles are generated: change dependencies with npm/composer instead.'],
   [/\/(vendor|node_modules)\//.test(path), 'Do not edit vendored dependencies.'],
 ]

@@ -15,12 +15,13 @@ paths:
 - Each `mount()` is its own app, so ids from `useId()` repeat across mounts; test uniqueness inside one parent.
 - Fixtures live in `src/shared/test/factories.ts`; keep them in step with `src/shared/api/types.ts`.
 
-**E2E (Playwright, API mocked in `e2e/mock-api.ts`)**
+**E2E (Playwright, Laravel API mocked in `e2e/mock-api.ts`; bulk operations and launches run on the dev-only mock in `mock-backend/`, served by Vite at `/api/playbooks`, whose state is shared by the whole dev server: those specs are serial inside their file, and `POST /api/playbooks/reset` only rebuilds the bulk batch, so launches in other files never interfere)**
 - Route with a **pathname predicate** (`url.pathname.startsWith('/api/')`), never the glob `**/api/**`: it also catches Vite's `/src/shared/api/*.ts` modules and blanks the app.
 - Wait for the page to be ready (`await expect(heading).toBeVisible()`) before navigating by click; a click during the first navigation is resolved by the router as a `replace`, so history-dependent behaviour changes.
 - Use web-first assertions; no `waitForTimeout`. Locale and time zone are fixed in `playwright.config.ts`, so formatted dates are the same everywhere.
 - Cover the unhappy path too (server error shown, control hidden for the wrong role). New pages go into `e2e/a11y.spec.ts` (axe, both themes) and the phone checks.
 - When the Laravel response shape changes, update `mock-api.ts` and `src/shared/api/types.ts` in the same change.
+- Accessibility and performance of whole pages: `npm run audit:devtools` (Chrome DevTools MCP: accessibility tree, Lighthouse desktop and mobile, LCP and CLS; limits in `perf-budget.json`). Axe in unit specs: `expectNoA11yViolations` from `@/shared/test/axe`.
 
 **Storybook:** one story per visual state, `play` functions for interactions, check both themes with the toolbar; the a11y addon is set to fail.
 

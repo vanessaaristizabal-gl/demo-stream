@@ -8,7 +8,7 @@ paths:
 
 Code lives in `backend/app/Domain/<Module>/` (Models, Enums, Jobs, services). Modules and their allowed dependencies (enforced by `tests/Arch/ArchTest.php`):
 
-- `Identity`, `Playbooks` and `Sandbox`: standalone. `Sandbox` is the demo area for simulated campaigns (ADR 0006): it must never depend on another module, so it cannot reach a provider.
+- `Identity`, `Playbooks` and `Sandbox`: standalone. `Sandbox` is the demo area for simulated campaigns (ADR 0006; the UI shows them as Simulated rows on the Campaigns page, with edit and delete): it must never depend on another module, so it cannot reach a provider.
 - `Advertising`: the foundation (accounts, campaigns, provider adapters, `StateDiffer`); depends on no other module.
 - `Compliance` -> Advertising. `Changelog` -> Advertising, Identity. `Governance` -> Advertising, Compliance, Changelog, Identity (never Playbooks).
 - Domain code never imports `App\Http` (controllers, resources, requests).

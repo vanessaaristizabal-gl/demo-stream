@@ -3,11 +3,9 @@
 //   node new-component.mjs DsBadge --ds                   -> src/design-system/components (name must start with Ds; added to the barrel)
 //   node new-component.mjs LockBadge --feature campaigns  -> src/features/campaigns/components
 //   node new-component.mjs DateRange --shared             -> src/shared/components
-import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 
-const FEATURES = ['auth', 'campaigns', 'approvals', 'changelog', 'system']
 const [name, flag, value] = process.argv.slice(2)
 
 const fail = (msg) => {
@@ -17,7 +15,17 @@ const fail = (msg) => {
 
 if (!name || !/^[A-Z][A-Za-z0-9]*$/.test(name)) fail('Usage: new-component.mjs <PascalCaseName> (--ds | --feature <name> | --shared)')
 
-const src = resolve(dirname(fileURLToPath(import.meta.url)), '../../../../frontend/src')
+// The front end's src/: found from where the command runs (the repo root, frontend/, or src/), so the same script works from the
+// repo and from an installed plugin.
+function findSrc() {
+  for (let dir = process.cwd(); dir !== dirname(dir); dir = dirname(dir)) {
+    for (const candidate of [join(dir, 'frontend/src'), join(dir, 'src')]) if (existsSync(join(candidate, 'design-system'))) return candidate
+  }
+  return fail('Run this from inside the front-end project: src/design-system was not found.')
+}
+const src = findSrc()
+// The features are whatever folders exist under src/features: a new feature never needs a change here.
+const FEATURES = existsSync(join(src, 'features')) ? readdirSync(join(src, 'features'), { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name) : []
 let dir, title, importSource
 if (flag === '--ds') {
   if (!name.startsWith('Ds')) fail('Design-system components must be named Ds<Something> (for example DsBadge).')
