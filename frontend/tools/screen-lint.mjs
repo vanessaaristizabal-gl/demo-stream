@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // A deterministic first pass over a screen, before the screen-reviewer agent reads it. It cannot judge; it can only count and match.
-//   node tools/screen-lint.mjs src/features/lab           lint real screens (exit 1 on a finding)
+//   node tools/screen-lint.mjs src/features/accounts           lint real screens (exit 1 on a finding)
 //   node tools/screen-lint.mjs --fixtures                 prove it catches the planted weak screens (exit 1 if one is missed)
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'

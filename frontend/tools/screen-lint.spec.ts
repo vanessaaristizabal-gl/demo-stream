@@ -24,17 +24,21 @@ describe('screen-lint on the planted weak screens', () => {
 })
 
 describe('screen-lint on real screens', () => {
-  const labComponents = join(__dirname, '../src/features/lab')
+  const src = join(__dirname, '../src')
   const files = [
-    'components/BulkApprovalPreview.vue',
-    'components/TemplateField.vue',
-    'components/DenseList.vue',
-    'views/BulkApprovalView.vue',
-    'views/DenseListView.vue',
+    'shared/components/BatchPreview.vue',
+    'shared/components/BatchReceipts.vue',
+    'features/campaigns/copy/TemplateField.vue',
+    'features/campaigns/components/CampaignTable.vue',
+    'features/campaigns/approvals/components/ApprovalsTable.vue',
+    'features/campaigns/views/CampaignsView.vue',
+    'features/accounts/launch/LaunchWizard.vue',
+    'features/accounts/launch/LaunchPanel.vue',
+    'features/accounts/views/AccountView.vue',
   ]
 
   it.each(files)('finds nothing in %s', (file) => {
-    expect(lintSource(readFileSync(join(labComponents, file), 'utf8'))).toEqual([])
+    expect(lintSource(readFileSync(join(src, file), 'utf8'))).toEqual([])
   })
 })
 

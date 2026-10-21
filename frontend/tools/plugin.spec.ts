@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 // @ts-expect-error plain .mjs tool without type declarations
-import { buildPlugin, PLUGIN_NAME } from './build-plugin.mjs'
+import { buildPlugin, PLUGIN_NAME, stripFrontMatter } from './build-plugin.mjs'
 
 // "Installs in a clean sandbox": build the plugin into an empty folder and use only what is in it.
 const sandbox = mkdtempSync(join(tmpdir(), 'plugin-sandbox-'))
@@ -13,23 +13,65 @@ afterAll(() => rmSync(sandbox, { recursive: true, force: true }))
 
 const json = (path: string) => JSON.parse(readFileSync(join(out, path), 'utf8'))
 
+describe('stripFrontMatter', () => {
+  it('removes the front matter and keeps the body', () => {
+    expect(stripFrontMatter('---\npaths:\n  - x\n---\n\n# Title\ntext')).toBe('\n# Title\ntext')
+    expect(stripFrontMatter('# No front matter')).toBe('# No front matter')
+  })
+})
+
 describe('the packaged plugin', () => {
   it('has a manifest with a name and a version', () => {
     expect(json('.claude-plugin/plugin.json')).toMatchObject({ name: PLUGIN_NAME, version: expect.stringMatching(/^\d+\.\d+\.\d+$/) })
   })
 
-  it('carries the skills, the reviewer, the hooks and the Playwright MCP', () => {
+  it('carries the skills, the three front-end reviewers, the hooks and both MCP servers', () => {
+    for (const skill of [
+      'screen-from-spec',
+      'design-language',
+      'create-vue-component',
+      'create-pinia-store',
+      'frontend-conventions',
+      'ux-information-design',
+    ]) {
+      expect(existsSync(join(out, 'skills', skill, 'SKILL.md')), skill).toBe(true)
+    }
+    for (const agent of ['screen-reviewer', 'frontend-code-reviewer', 'a11y-reviewer'])
+      expect(existsSync(join(out, 'agents', `${agent}.md`)), agent).toBe(true)
+    expect(existsSync(join(out, 'agents/backend-code-reviewer.md'))).toBe(false) // a front-end plugin
     for (const path of [
-      'skills/screen-from-spec/SKILL.md',
-      'skills/design-language/SKILL.md',
-      'agents/screen-reviewer.md',
       'hooks/guard-files.mjs',
       'hooks/verify.mjs',
       'scripts/screen-lint.mjs',
+      'skills/create-vue-component/scripts/new-component.mjs',
     ]) {
       expect(existsSync(join(out, path)), path).toBe(true)
     }
-    expect(json('.mcp.json').mcpServers.playwright.args[0]).toMatch(/^@playwright\/mcp@\d+\.\d+\.\d+$/) // pinned, never "latest"
+    const servers = json('.mcp.json').mcpServers
+    expect(Object.keys(servers)).toEqual(['playwright', 'chrome-devtools'])
+    expect(servers.playwright.args[0]).toMatch(/^@playwright\/mcp@\d+\.\d+\.\d+$/) // pinned, never "latest"
+    expect(servers['chrome-devtools'].args[0]).toMatch(/^chrome-devtools-mcp@\d+\.\d+\.\d+$/)
+  })
+
+  it('carries the repo rules as skills, because a plugin does not load .claude/rules/', () => {
+    const conventions = readFileSync(join(out, 'skills/frontend-conventions/SKILL.md'), 'utf8')
+    for (const topic of [
+      'TypeScript rules',
+      'UI library and dependency policy',
+      'HTML and accessibility rules',
+      'Dates, money and display formats',
+      'Frontend testing',
+    ])
+      expect(conventions).toContain(topic)
+    expect(conventions).not.toContain('paths:') // the rules' own front matter is not copied
+    expect(readFileSync(join(out, 'skills/ux-information-design/SKILL.md'), 'utf8')).toContain('Choose the pattern by what the content is')
+  })
+
+  it('tells the scaffold skill and the reviewers where things live once installed', () => {
+    expect(readFileSync(join(out, 'skills/create-vue-component/SKILL.md'), 'utf8')).toContain(
+      'node ${CLAUDE_PLUGIN_ROOT}/skills/create-vue-component/scripts/new-component.mjs',
+    )
+    expect(readFileSync(join(out, 'agents/frontend-code-reviewer.md'), 'utf8')).toContain('## Running from the plugin')
   })
 
   it('moves the design-language conventions into a skill, because plugins do not load a CLAUDE.md', () => {
@@ -92,7 +134,12 @@ describe('the packaged plugin', () => {
     for (const file of [
       'skills/design-language/SKILL.md',
       'skills/screen-from-spec/SKILL.md',
+      'skills/frontend-conventions/SKILL.md',
+      'skills/ux-information-design/SKILL.md',
+      'skills/create-vue-component/SKILL.md',
       'agents/screen-reviewer.md',
+      'agents/frontend-code-reviewer.md',
+      'agents/a11y-reviewer.md',
       'hooks/verify.mjs',
       'hooks/guard-files.mjs',
       'scripts/screen-lint.mjs',

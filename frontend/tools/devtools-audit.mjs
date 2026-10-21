@@ -5,29 +5,29 @@
 // SEO is reported but not enforced: this is an internal, signed-in app and robots.txt keeps crawlers out on purpose.
 //
 //   npm run dev                      (and the Laravel backend: php artisan serve)
-//   npm run audit:devtools           [-- --base http://localhost:5173] [--desktop-only] [--no-lab]
+//   npm run audit:devtools           [-- --base http://localhost:5173] [--desktop-only] [--no-preview]
 //
 // The same server is configured for Claude Code in .mcp.json, so an agent can run the same checks interactively.
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { startMcp } from './lib/mcp-client.mjs'
+import { DEVTOOLS_ARGS, DEVTOOLS_MCP } from './lib/mcp-servers.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
-export const DEVTOOLS_MCP = 'chrome-devtools-mcp@1.11.0'
 
 /** The pages to audit: path, and the heading that proves the page is ready. */
 export const PAGES = [
   ['/login', 'Sign in', { public: true }],
+  ['/accounts', 'Accounts'],
+  ['/accounts/1', 'Dealer 1'],
+  ['/accounts/1?tab=launch', 'Playbook', { preview: true }],
   ['/campaigns', 'Campaigns'],
   ['/campaigns?tab=meta', 'Campaigns'],
-  ['/approvals', 'Approvals'],
+  ['/campaigns?tab=approvals', 'Campaigns'],
+  ['/campaigns/bulk', 'Bulk budget change', { preview: true }],
+  ['/campaigns/copy', 'Ad copy', { preview: true }],
   ['/changelog', 'Changelog'],
-  ['/lab', 'Lab', { lab: true }],
-  ['/lab/deploy', 'Deploy a playbook', { lab: true }],
-  ['/lab/bulk', 'Bulk approval preview', { lab: true }],
-  ['/lab/template', 'Template field', { lab: true }],
-  ['/lab/rows', 'Dense list', { lab: true }],
 ]
 
 /** Pure: scores and failed audits from the text of a lighthouse_audit result. */
@@ -84,17 +84,9 @@ async function main() {
   const password = value('--password', 'password')
   const devices = flag('--desktop-only') ? ['desktop'] : ['desktop', 'mobile']
   const limits = JSON.parse(readFileSync(resolve(here, '../perf-budget.json'), 'utf8')).devtools
-  const pages = PAGES.filter(([, , o]) => !(flag('--no-lab') && o?.lab))
+  const pages = PAGES.filter(([, , o]) => !(flag('--no-preview') && o?.preview))
 
-  const mcp = startMcp('npx', [
-    '-y',
-    DEVTOOLS_MCP,
-    '--headless',
-    '--isolated',
-    '--no-performance-crux',
-    '--no-usage-statistics',
-    '--no-file-navigations',
-  ])
+  const mcp = startMcp('npx', ['-y', DEVTOOLS_MCP, '--headless', ...DEVTOOLS_ARGS])
   const failures = []
   const rows = []
   try {
@@ -148,12 +140,6 @@ async function main() {
               .map((f) => f.id)
               .join(', ')}`,
           )
-        failures.push(
-          `${path} (${device}): SEO ${lh.seo}, limit ${limits.seo}: ${lh.failed
-            .filter((f) => f.category === 'seo')
-            .map((f) => f.id)
-            .join(', ')}`,
-        )
       }
       if (result.trace.lcpMs === null || result.trace.lcpMs > limits.lcpMs)
         failures.push(`${path}: LCP ${result.trace.lcpMs} ms, limit ${limits.lcpMs} ms`)

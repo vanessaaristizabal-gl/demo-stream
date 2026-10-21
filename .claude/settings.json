@@ -44,5 +44,9 @@
         ]
       }
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "playwright",
+    "chrome-devtools"
+  ]
 }

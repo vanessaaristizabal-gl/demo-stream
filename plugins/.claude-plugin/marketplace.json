@@ -10,7 +10,7 @@
     {
       "name": "stream-frontend-kit",
       "source": "./stream-frontend-kit",
-      "description": "Front-end workflow for Vue 3 screens: a screen-from-spec skill, the design language as a skill, a read-only screen reviewer, hooks that verify every edit and block secrets files, and the Playwright MCP."
+      "description": "Front-end workflow for Vue 3 screens: skills to build components, stores and screens from a spec, the conventions, design language and UX rules as skills, read-only reviewers (screen, front-end code, accessibility), hooks that verify every edit and block secrets files, and the Playwright and Chrome DevTools MCP servers."
     }
   ]
 }

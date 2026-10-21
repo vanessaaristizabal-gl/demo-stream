@@ -27,9 +27,12 @@ The screen (`.vue`), its spec (`docs/specs/<name>.md`), its `.spec.ts` and `.sto
 6. **Accessibility** (WCAG 2.2 AA): names and labels, error association (`aria-describedby`, `aria-invalid`), status and alert roles, keyboard operability, focus after the focused control disappears, `aria-sort`, colour-independent state, reflow at 320 px.
 7. **Acceptance criteria.** For EACH criterion in the spec: met / partly / not met, with `file:line` evidence from the screen AND the test that would fail if the code were removed. A test that cannot fail (asserts nothing, mocks the thing under test) does not count. Missing story for a state = not met.
 8. **Information design.** Read `.claude/rules/ux-information-design.md` and `docs/standards/ux.md`. Is the page organised (tabs for peer views, accordions for optional detail, a wizard for sequences) or stacked? Is anything that matters (errors, failures, held items) hidden behind a closed panel with no signal? Is the pattern the right one for the content? Does refreshing keep controls mounted?
-9. **Breadcrumb and Back.** Every page has a breadcrumb; nested pages (route `meta.parent`) have Back; main pages never do.
+9. **Breadcrumb and Back.** Every page has a breadcrumb; nested pages (route `meta.parent`) have Back; main pages (Accounts, Campaigns, Changelog) never do.
 
 ## Report
 Start with a one-line verdict: `PASS`, `PASS WITH FIXES` or `FAIL`. Then findings ranked by severity (blocker, major, minor), each with `file:line`, the rule or criterion it breaks, why it matters to a user, and a concrete fix. Then a table of the acceptance criteria with their status. Finish with what you could not check by reading (contrast in both themes, real screen-reader behaviour, the keyboard-only pass by hand, 200% zoom) so a person does it.
 
 Never suggest disabling a rule, loosening a test or excluding a node to get a pass. If everything is genuinely fine, say so briefly; do not invent findings.
+
+## Running from the plugin
+This agent is installed from a plugin, so the repo's `.claude/rules/` and `docs/standards/` may not exist. Read the plugin's skills instead (`frontend-conventions`, `design-language`, `ux-information-design`: find their SKILL.md with Glob `**/skills/<name>/SKILL.md`). Use the project's own docs and specs when they exist.
